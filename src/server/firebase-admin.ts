@@ -1,15 +1,17 @@
+import { readFileSync } from "node:fs";
 import { cert, getApps, initializeApp, type App, type ServiceAccount } from "firebase-admin/app";
 
 /**
  * One Firebase Admin app per process, shared by the Firestore adapter and the
  * auth guard. Credentials come from a service-account key (raw JSON, base64,
- * or a path) or from the three split variables. Without a key the app is
+ * or FIREBASE_SERVICE_ACCOUNT_FILE) or from the three split variables. Without a key the app is
  * created with just a project ID, which is enough to verify ID tokens and to
  * talk to the local emulators.
  */
 
 export function serviceAccount(): ServiceAccount | undefined {
-  const raw = process.env.FIREBASE_SERVICE_ACCOUNT?.trim();
+  const file = process.env.FIREBASE_SERVICE_ACCOUNT_FILE?.trim();
+  const raw = process.env.FIREBASE_SERVICE_ACCOUNT?.trim() || (file ? readFileSync(file, "utf8") : undefined);
   if (raw) {
     const json = raw.startsWith("{") ? raw : Buffer.from(raw, "base64").toString("utf8");
     const parsed = JSON.parse(json) as { project_id: string; client_email: string; private_key: string };

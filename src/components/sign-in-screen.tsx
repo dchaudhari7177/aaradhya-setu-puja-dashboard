@@ -16,6 +16,8 @@ import { Button } from "./ui/button";
 
 const MESSAGES: Record<string, string> = {
   "auth/invalid-credential": "That email and password don't match an admin account.",
+  "auth/wrong-password": "That email and password don't match an admin account.",
+  "auth/user-not-found": "That email and password don't match an admin account.",
   "auth/invalid-email": "Enter a valid email address.",
   "auth/user-disabled": "This account has been disabled.",
   "auth/too-many-requests": "Too many attempts. Wait a minute and try again.",
@@ -124,10 +126,20 @@ export function SignInScreen() {
         <svg
           aria-hidden
           viewBox="0 0 200 200"
-          className="pointer-events-none absolute -right-24 -bottom-24 size-[28rem] opacity-[0.07]"
+          className="pointer-events-none absolute -right-24 -bottom-24 size-[28rem] opacity-[0.16]"
         >
           {Array.from({ length: 12 }, (_, i) => (
-            <ellipse key={i} cx="100" cy="100" rx="28" ry="90" fill="#fdebd4" transform={`rotate(${i * 15} 100 100)`} />
+            <ellipse
+              key={i}
+              cx="100"
+              cy="100"
+              rx="28"
+              ry="90"
+              fill="none"
+              stroke="#fdebd4"
+              strokeWidth="0.6"
+              transform={`rotate(${i * 15} 100 100)`}
+            />
           ))}
         </svg>
       </aside>
