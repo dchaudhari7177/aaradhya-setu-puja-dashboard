@@ -208,7 +208,8 @@ function statusFor(offset: number, rand: () => number): BookingStatus {
   const r = rand();
   if (offset < -3) return "Completed";
   if (offset < -1) return r < 0.85 ? "Completed" : "In Progress";
-  if (offset <= 0) return r < 0.45 ? "Completed" : r < 0.8 ? "In Progress" : "Confirmed";
+  if (offset < 0) return r < 0.7 ? "Completed" : "In Progress"; // yesterday: a few still being wrapped up
+  if (offset === 0) return r < 0.6 ? "In Progress" : "Confirmed"; // today: under way or about to start
   if (offset <= 3) return r < 0.65 ? "Confirmed" : "Pending";
   return r < 0.45 ? "Confirmed" : "Pending";
 }
