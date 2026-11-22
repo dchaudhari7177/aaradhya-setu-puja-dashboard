@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CheckCheck, CircleAlert, MessageCircle, RotateCcw } from "lucide-react";
 import { NOTIFICATION_TEMPLATES } from "@/lib/domain/templates";
 import type { Booking, NotificationRecord } from "@/lib/domain/types";
@@ -25,6 +25,12 @@ export function WhatsAppThread({
   const [resending, setResending] = useState(false);
   const ordered = [...notifications].reverse(); // oldest first, like a chat
   const latest = notifications[0];
+  const wall = useRef<HTMLDivElement>(null);
+
+  // Open on the newest message, like a chat app.
+  useEffect(() => {
+    if (wall.current) wall.current.scrollTop = wall.current.scrollHeight;
+  }, [notifications.length]);
 
   async function resend() {
     setResending(true);
@@ -47,7 +53,7 @@ export function WhatsAppThread({
   }
 
   return (
-    <section className="card flex max-h-[44rem] flex-col overflow-hidden lg:sticky lg:top-6" aria-label="WhatsApp notifications">
+    <section className="card flex max-h-[44rem] flex-col overflow-hidden xl:sticky xl:top-6" aria-label="WhatsApp notifications">
       <header className="flex items-center gap-3 bg-whatsapp px-4 py-3 text-white">
         <span className="grid size-9 place-items-center rounded-full bg-white/20 font-display font-bold">
           {booking.devotee.name.charAt(0)}
@@ -59,7 +65,7 @@ export function WhatsAppThread({
         <MessageCircle className="size-5 opacity-80" />
       </header>
 
-      <div className="wa-wall flex-1 space-y-3 overflow-y-auto p-3">
+      <div ref={wall} className="wa-wall flex-1 space-y-3 overflow-y-auto p-3">
         {ordered.length === 0 && (
           <p className="mx-auto mt-6 w-fit rounded-lg bg-white/80 px-3 py-1.5 text-xs text-muted">No messages yet</p>
         )}

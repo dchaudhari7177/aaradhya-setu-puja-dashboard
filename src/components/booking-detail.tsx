@@ -124,9 +124,9 @@ export function BookingDetail() {
 
       <Stepper booking={booking} />
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_24rem]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_24rem]">
         <div className="space-y-5">
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
             <Section title="Puja details" icon={Flame}>
               <Row icon={Landmark} label="Temple" value={`${booking.temple.name}, ${booking.temple.city}`} />
               <Row icon={CalendarDays} label="Puja date" value={formatPujaDate(booking.pujaDate)} />
@@ -330,7 +330,7 @@ export function BookingDetailSkeleton() {
         <span className="skeleton block h-8 w-80 max-w-full" />
       </div>
       <div className="card skeleton h-24" />
-      <div className="grid gap-5 lg:grid-cols-[1fr_24rem]">
+      <div className="grid gap-5 xl:grid-cols-[1fr_24rem]">
         <div className="card skeleton h-80" />
         <div className="card skeleton h-80" />
       </div>

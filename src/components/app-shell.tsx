@@ -7,7 +7,7 @@ import { Database, LayoutDashboard, Menu, MessageCircle, Plus, RotateCcw, X } fr
 import clsx from "clsx";
 import { Logo } from "./logo";
 import { useToast } from "./ui/toast";
-import { api, notifyDataChanged } from "@/lib/api-client";
+import { api, notifyDataChanged, useApi } from "@/lib/api-client";
 
 const NAV = [
   { href: "/", label: "Bookings", icon: LayoutDashboard, match: (p: string) => p === "/" || /^\/bookings\/(?!new)/.test(p) },
@@ -125,12 +125,8 @@ function NavLinks({ pathname, onNavigate }: { pathname: string | null; onNavigat
 function SystemCard() {
   const toast = useToast();
   const router = useRouter();
-  const [health, setHealth] = useState<{ driver: string; bookings: number } | null>(null);
+  const { data: health } = useApi<{ driver: string; bookings: number }>("/api/health");
   const [resetting, setResetting] = useState(false);
-
-  useEffect(() => {
-    api<{ driver: string; bookings: number }>("/api/health").then(setHealth).catch(() => setHealth(null));
-  }, []);
 
   async function reset() {
     if (!confirm("Restore the 72 demo bookings? Changes you made will be replaced.")) return;
