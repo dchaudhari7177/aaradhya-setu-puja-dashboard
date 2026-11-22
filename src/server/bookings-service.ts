@@ -64,7 +64,7 @@ export async function changeStatus(ctx: ServiceContext, id: string, change: Stat
   // already assigned, or the temple's first listed pandit.
   const pandit =
     change.status === "Confirmed"
-      ? change.pandit ?? current.pandit ?? findPuja(current.puja.slug)?.pandits[0]
+      ? (change.pandit ?? current.pandit ?? findPuja(current.puja.slug)?.pandits[0])
       : change.pandit;
 
   const at = clock(ctx).toISOString();

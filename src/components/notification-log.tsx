@@ -26,7 +26,10 @@ export function NotificationLog() {
   const [open, setOpen] = useState<string | null>(null);
 
   const items = useMemo(
-    () => (data?.items ?? []).filter((n) => (!template || n.template === template) && (!onlyFailed || n.status === "failed")),
+    () =>
+      (data?.items ?? []).filter(
+        (n) => (!template || n.template === template) && (!onlyFailed || n.status === "failed"),
+      ),
     [data, template, onlyFailed],
   );
 
@@ -47,10 +50,21 @@ export function NotificationLog() {
           ))}
         </select>
         <label className="flex items-center gap-2 rounded-xl border border-line px-3 py-2 text-sm">
-          <input type="checkbox" className="accent-brand-600" checked={onlyFailed} onChange={(e) => setOnlyFailed(e.target.checked)} />
+          <input
+            type="checkbox"
+            className="accent-brand-600"
+            checked={onlyFailed}
+            onChange={(e) => setOnlyFailed(e.target.checked)}
+          />
           Failed only
         </label>
-        <Button variant="ghost" size="sm" className="ml-auto" icon={<RefreshCw className={clsx("size-3.5", loading && "animate-spin")} />} onClick={reload}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="ml-auto"
+          icon={<RefreshCw className={clsx("size-3.5", loading && "animate-spin")} />}
+          onClick={reload}
+        >
           Refresh
         </Button>
       </div>
@@ -82,13 +96,20 @@ export function NotificationLog() {
                   aria-expanded={expanded}
                   className="flex w-full items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-cream sm:px-4"
                 >
-                  <span className={clsx("grid size-8 shrink-0 place-items-center rounded-full", n.status === "sent" ? "bg-whatsapp/10 text-whatsapp" : "bg-brand-50 text-brand-700")}>
+                  <span
+                    className={clsx(
+                      "grid size-8 shrink-0 place-items-center rounded-full",
+                      n.status === "sent" ? "bg-whatsapp/10 text-whatsapp" : "bg-brand-50 text-brand-700",
+                    )}
+                  >
                     {n.status === "sent" ? <CheckCheck className="size-4" /> : <CircleAlert className="size-4" />}
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                       <span className="font-semibold">{n.devoteeName}</span>
-                      <span className={clsx("rounded-full px-2 py-px text-xs font-semibold", TEMPLATE_TONE[n.template])}>
+                      <span
+                        className={clsx("rounded-full px-2 py-px text-xs font-semibold", TEMPLATE_TONE[n.template])}
+                      >
                         {NOTIFICATION_TEMPLATES[n.template]?.title}
                       </span>
                       {n.status === "failed" && <span className="text-xs font-semibold text-brand-700">Failed</span>}
@@ -99,7 +120,9 @@ export function NotificationLog() {
                     <span className="block font-mono font-semibold text-ink/80">{n.bookingId}</span>
                     <span title={formatDateTime(n.createdAt)}>{timeAgo(n.createdAt)}</span>
                   </span>
-                  <ChevronDown className={clsx("size-4 shrink-0 text-muted transition-transform", expanded && "rotate-180")} />
+                  <ChevronDown
+                    className={clsx("size-4 shrink-0 text-muted transition-transform", expanded && "rotate-180")}
+                  />
                 </button>
                 {expanded && (
                   <div className="grid gap-4 bg-cream/60 px-3 pb-4 sm:grid-cols-[minmax(0,1fr)_14rem] sm:px-4">
@@ -110,7 +133,10 @@ export function NotificationLog() {
                     </div>
                     <dl className="space-y-2 text-sm">
                       <Meta label="Booking">
-                        <Link href={`/bookings/${n.bookingId}`} className="font-mono font-semibold text-brand-700 hover:underline">
+                        <Link
+                          href={`/bookings/${n.bookingId}`}
+                          className="font-mono font-semibold text-brand-700 hover:underline"
+                        >
                           {n.bookingId}
                         </Link>
                       </Meta>

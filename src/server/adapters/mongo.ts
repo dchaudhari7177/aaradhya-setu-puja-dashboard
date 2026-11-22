@@ -237,14 +237,25 @@ export class MongoRepository implements BookingRepository {
       totalRevenue += g.revenue;
       if (g._id === "Completed") completedRevenue = g.revenue;
     }
-    return { totalBookings, totalRevenue, completedRevenue, byStatus, todayCount, upcomingWeekCount, notificationsSent };
+    return {
+      totalBookings,
+      totalRevenue,
+      completedRevenue,
+      byStatus,
+      todayCount,
+      upcomingWeekCount,
+      notificationsSent,
+    };
   }
 
   async exportAll(query: Omit<BookingListQuery, "page" | "pageSize">) {
     await connectMongo();
     const base = buildBaseFilter(query);
     const filter = query.status ? { ...base, status: query.status } : base;
-    const docs = await BookingModel.find(filter).sort(sortSpec(query.sort, query.order)).limit(10_000).lean<LeanBooking[]>();
+    const docs = await BookingModel.find(filter)
+      .sort(sortSpec(query.sort, query.order))
+      .limit(10_000)
+      .lean<LeanBooking[]>();
     return docs.map(toBooking);
   }
 

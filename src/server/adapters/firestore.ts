@@ -28,8 +28,8 @@ import {
 export function firestoreConfigured(): boolean {
   return Boolean(
     process.env.FIREBASE_SERVICE_ACCOUNT ||
-      (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) ||
-      process.env.FIRESTORE_EMULATOR_HOST,
+    (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) ||
+    process.env.FIRESTORE_EMULATOR_HOST,
   );
 }
 

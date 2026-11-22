@@ -10,9 +10,19 @@ import { useToast } from "./ui/toast";
 import { api, notifyDataChanged, useApi } from "@/lib/api-client";
 
 const NAV = [
-  { href: "/", label: "Bookings", icon: LayoutDashboard, match: (p: string) => p === "/" || /^\/bookings\/(?!new)/.test(p) },
+  {
+    href: "/",
+    label: "Bookings",
+    icon: LayoutDashboard,
+    match: (p: string) => p === "/" || /^\/bookings\/(?!new)/.test(p),
+  },
   { href: "/bookings/new", label: "New booking", icon: Plus, match: (p: string) => p === "/bookings/new" },
-  { href: "/notifications", label: "WhatsApp log", icon: MessageCircle, match: (p: string) => p.startsWith("/notifications") },
+  {
+    href: "/notifications",
+    label: "WhatsApp log",
+    icon: MessageCircle,
+    match: (p: string) => p.startsWith("/notifications"),
+  },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -50,7 +60,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {open && (
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
-          <button className="absolute inset-0 animate-fade-in bg-maroon-950/50" aria-label="Close menu" onClick={() => setOpen(false)} />
+          <button
+            className="absolute inset-0 animate-fade-in bg-maroon-950/50"
+            aria-label="Close menu"
+            onClick={() => setOpen(false)}
+          />
           <aside className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] animate-slide-up flex-col bg-maroon-900 text-cream shadow-pop">
             <button
               type="button"
@@ -99,26 +113,26 @@ function ActiveNavLinks({ onNavigate }: { onNavigate?: () => void }) {
 
 function NavLinks({ pathname, onNavigate }: { pathname: string | null; onNavigate?: () => void }) {
   return (
-      <nav className="flex flex-col gap-1 px-3" aria-label="Main">
-        {NAV.map(({ href, label, icon: Icon, match }) => {
-          const active = pathname !== null && match(pathname);
-          return (
-            <Link
-              key={href}
-              href={href}
-              onClick={onNavigate}
-              aria-current={active ? "page" : undefined}
-              className={clsx(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[0.9375rem] font-medium transition-colors",
-                active ? "bg-cream text-maroon-900 shadow-sm" : "text-cream/75 hover:bg-white/8 hover:text-cream",
-              )}
-            >
-              <Icon className={clsx("size-[1.125rem]", active ? "text-brand-600" : "")} aria-hidden />
-              {label}
-            </Link>
-          );
-        })}
-      </nav>
+    <nav className="flex flex-col gap-1 px-3" aria-label="Main">
+      {NAV.map(({ href, label, icon: Icon, match }) => {
+        const active = pathname !== null && match(pathname);
+        return (
+          <Link
+            key={href}
+            href={href}
+            onClick={onNavigate}
+            aria-current={active ? "page" : undefined}
+            className={clsx(
+              "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[0.9375rem] font-medium transition-colors",
+              active ? "bg-cream text-maroon-900 shadow-sm" : "text-cream/75 hover:bg-white/8 hover:text-cream",
+            )}
+          >
+            <Icon className={clsx("size-[1.125rem]", active ? "text-brand-600" : "")} aria-hidden />
+            {label}
+          </Link>
+        );
+      })}
+    </nav>
   );
 }
 
@@ -143,7 +157,8 @@ function SystemCard() {
     }
   }
 
-  const label = health?.driver === "firestore" ? "Firestore" : health?.driver === "mongodb" ? "MongoDB" : health?.driver;
+  const label =
+    health?.driver === "firestore" ? "Firestore" : health?.driver === "mongodb" ? "MongoDB" : health?.driver;
   return (
     <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-sm">
       <div className="flex items-center gap-2 text-cream/80">

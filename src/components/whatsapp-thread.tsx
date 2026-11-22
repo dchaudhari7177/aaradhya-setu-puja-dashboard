@@ -35,10 +35,13 @@ export function WhatsAppThread({
   async function resend() {
     setResending(true);
     try {
-      const { notification } = await api<{ notification: NotificationRecord }>(`/api/bookings/${booking.id}/notifications`, {
-        method: "POST",
-        json: {},
-      });
+      const { notification } = await api<{ notification: NotificationRecord }>(
+        `/api/bookings/${booking.id}/notifications`,
+        {
+          method: "POST",
+          json: {},
+        },
+      );
       toast(
         notification.status === "sent"
           ? { tone: "whatsapp", title: "Message re-sent", description: `Delivered to ${notification.devoteeName}.` }
@@ -53,14 +56,19 @@ export function WhatsAppThread({
   }
 
   return (
-    <section className="card flex max-h-[44rem] flex-col overflow-hidden xl:sticky xl:top-6" aria-label="WhatsApp notifications">
+    <section
+      className="card flex max-h-[44rem] flex-col overflow-hidden xl:sticky xl:top-6"
+      aria-label="WhatsApp notifications"
+    >
       <header className="flex items-center gap-3 bg-whatsapp px-4 py-3 text-white">
         <span className="grid size-9 place-items-center rounded-full bg-white/20 font-display font-bold">
           {booking.devotee.name.charAt(0)}
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate font-semibold">{booking.devotee.name}</p>
-          <p className="truncate text-xs text-white/80 tabular-nums">{formatPhone(booking.devotee.phone)} · WhatsApp (mock)</p>
+          <p className="truncate text-xs text-white/80 tabular-nums">
+            {formatPhone(booking.devotee.phone)} · WhatsApp (mock)
+          </p>
         </div>
         <MessageCircle className="size-5 opacity-80" />
       </header>
@@ -84,7 +92,10 @@ export function WhatsAppThread({
               <p className="text-[0.8125rem] leading-relaxed break-words whitespace-pre-line">
                 <WhatsAppText text={n.message} />
               </p>
-              <p className="mt-1 flex items-center justify-end gap-1 text-[0.6875rem] text-muted" title={formatDateTime(n.createdAt)}>
+              <p
+                className="mt-1 flex items-center justify-end gap-1 text-[0.6875rem] text-muted"
+                title={formatDateTime(n.createdAt)}
+              >
                 {timeFmt.format(new Date(n.createdAt))}
                 {n.status === "sent" ? (
                   <CheckCheck className="size-3.5 text-sky-500" aria-label="Delivered" />
@@ -93,7 +104,9 @@ export function WhatsAppThread({
                 )}
               </p>
             </div>
-            {n.status === "failed" && <p className="mt-1 text-xs font-medium text-brand-800">Not delivered: {n.error}</p>}
+            {n.status === "failed" && (
+              <p className="mt-1 text-xs font-medium text-brand-800">Not delivered: {n.error}</p>
+            )}
           </article>
         ))}
       </div>
@@ -101,7 +114,9 @@ export function WhatsAppThread({
       <footer className="flex items-center justify-between gap-2 border-t border-line-soft px-4 py-2.5 text-xs text-muted">
         <span>
           {notifications.length} message{notifications.length === 1 ? "" : "s"}
-          {latest?.providerMessageId && <span className="hidden sm:inline"> · last id {latest.providerMessageId.slice(0, 14)}…</span>}
+          {latest?.providerMessageId && (
+            <span className="hidden sm:inline"> · last id {latest.providerMessageId.slice(0, 14)}…</span>
+          )}
         </span>
         <Button
           size="sm"
@@ -124,7 +139,11 @@ export function WhatsAppText({ text }: { text: string }) {
   return (
     <>
       {parts.map((p, i) =>
-        p.startsWith("*") && p.endsWith("*") && p.length > 2 ? <strong key={i}>{p.slice(1, -1)}</strong> : <span key={i}>{p}</span>,
+        p.startsWith("*") && p.endsWith("*") && p.length > 2 ? (
+          <strong key={i}>{p.slice(1, -1)}</strong>
+        ) : (
+          <span key={i}>{p}</span>
+        ),
       )}
     </>
   );

@@ -93,7 +93,7 @@ export function StatusChangeDialog({
       ref={ref}
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
-      className="m-auto w-[min(34rem,calc(100vw-2rem))] max-h-[calc(100dvh-2rem)] rounded-2xl bg-white p-0 text-ink shadow-pop backdrop:bg-maroon-950/45 backdrop:backdrop-blur-[2px] open:animate-slide-up"
+      className="m-auto max-h-[calc(100dvh-2rem)] w-[min(34rem,calc(100vw-2rem))] rounded-2xl bg-white p-0 text-ink shadow-pop backdrop:bg-maroon-950/45 backdrop:backdrop-blur-[2px] open:animate-slide-up"
       aria-labelledby="status-dialog-title"
     >
       <form onSubmit={submit} className="flex max-h-[calc(100dvh-2rem)] flex-col">
@@ -106,7 +106,12 @@ export function StatusChangeDialog({
               {booking.id} · {booking.devotee.name}
             </p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-muted hover:bg-sand" aria-label="Close">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-muted hover:bg-sand"
+            aria-label="Close"
+          >
             <X className="size-5" />
           </button>
         </header>

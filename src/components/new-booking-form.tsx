@@ -82,14 +82,25 @@ export function NewBookingForm() {
     }
     setSaving(true);
     try {
-      const { booking, notification } = await api<{ booking: Booking; notification: NotificationRecord }>("/api/bookings", {
-        method: "POST",
-        json: payload,
-      });
+      const { booking, notification } = await api<{ booking: Booking; notification: NotificationRecord }>(
+        "/api/bookings",
+        {
+          method: "POST",
+          json: payload,
+        },
+      );
       toast(
         notification.status === "sent"
-          ? { tone: "whatsapp", title: `Booking ${booking.id} created`, description: `Confirmation sent to ${booking.devotee.name} on WhatsApp.` }
-          : { tone: "error", title: `Booking ${booking.id} created`, description: `WhatsApp failed: ${notification.error}` },
+          ? {
+              tone: "whatsapp",
+              title: `Booking ${booking.id} created`,
+              description: `Confirmation sent to ${booking.devotee.name} on WhatsApp.`,
+            }
+          : {
+              tone: "error",
+              title: `Booking ${booking.id} created`,
+              description: `WhatsApp failed: ${notification.error}`,
+            },
       );
       notifyDataChanged();
       router.push(`/bookings/${booking.id}`);
@@ -143,7 +154,11 @@ export function NewBookingForm() {
           <p className="-mt-1 flex items-center gap-2 rounded-xl bg-sand/70 px-3 py-2 text-sm text-muted">
             <Landmark className="size-4 shrink-0 text-brand-600" />
             <span>
-              Performed at <span className="font-semibold text-ink">{puja.temple.name}, {puja.temple.city}</span> · {puja.deity}
+              Performed at{" "}
+              <span className="font-semibold text-ink">
+                {puja.temple.name}, {puja.temple.city}
+              </span>{" "}
+              · {puja.deity}
             </span>
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -237,18 +252,32 @@ export function NewBookingForm() {
             </Field>
             <Field label="Gotra" optional error={liveErrors["devotee.gotra"]}>
               {(id) => (
-                <input id={id} className="field" value={form.gotra} onChange={(e) => set("gotra", e.target.value)} placeholder="e.g. Kashyap" />
+                <input
+                  id={id}
+                  className="field"
+                  value={form.gotra}
+                  onChange={(e) => set("gotra", e.target.value)}
+                  placeholder="e.g. Kashyap"
+                />
               )}
             </Field>
           </div>
         </Card>
 
         <Card title="Sankalp" step={3}>
-          <Field label="Family names for the sankalp" optional error={liveErrors.sankalpNames} hint="Press Enter to add each name (up to 8)">
+          <Field
+            label="Family names for the sankalp"
+            optional
+            error={liveErrors.sankalpNames}
+            hint="Press Enter to add each name (up to 8)"
+          >
             {(id) => (
               <div className="flex flex-wrap gap-2 rounded-[0.625rem] border border-line bg-white p-1.5 focus-within:border-brand-600 focus-within:ring-3 focus-within:ring-brand-600/15">
                 {names.map((n) => (
-                  <span key={n} className="inline-flex items-center gap-1 rounded-full bg-brand-50 py-0.5 pr-1 pl-2.5 text-sm font-medium text-brand-800">
+                  <span
+                    key={n}
+                    className="inline-flex items-center gap-1 rounded-full bg-brand-50 py-0.5 pr-1 pl-2.5 text-sm font-medium text-brand-800"
+                  >
                     {n}
                     <button
                       type="button"
@@ -373,7 +402,10 @@ function Field({
         {label} {optional && <span className="font-normal text-muted">(optional)</span>}
       </label>
       {children(id)}
-      <p className={clsx("mt-1 text-xs", error ? "font-medium text-brand-700" : "text-muted")} role={error ? "alert" : undefined}>
+      <p
+        className={clsx("mt-1 text-xs", error ? "font-medium text-brand-700" : "text-muted")}
+        role={error ? "alert" : undefined}
+      >
         {error ?? hint ?? " "}
       </p>
     </div>

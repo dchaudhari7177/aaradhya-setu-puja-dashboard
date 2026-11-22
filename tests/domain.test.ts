@@ -23,8 +23,14 @@ describe("status workflow", () => {
   it("only allows starting a puja on or after its date", () => {
     expect(checkTransition("Confirmed", "In Progress", { pujaDate: "2026-11-25", today: "2026-11-24" }).ok).toBe(false);
     expect(checkTransition("Confirmed", "In Progress", { pujaDate: "2026-11-24", today: "2026-11-24" }).ok).toBe(true);
-    expect(nextAction({ status: "Confirmed", pujaDate: "2026-12-12" }, "2026-11-24")).toMatchObject({ enabled: false, reason: "Starts 12 Dec 2026" });
-    expect(nextAction({ status: "Pending", pujaDate: "2026-12-12" }, "2026-11-24")).toMatchObject({ to: "Confirmed", enabled: true });
+    expect(nextAction({ status: "Confirmed", pujaDate: "2026-12-12" }, "2026-11-24")).toMatchObject({
+      enabled: false,
+      reason: "Starts 12 Dec 2026",
+    });
+    expect(nextAction({ status: "Pending", pujaDate: "2026-12-12" }, "2026-11-24")).toMatchObject({
+      to: "Confirmed",
+      enabled: true,
+    });
     expect(nextAction({ status: "Completed", pujaDate: "2026-11-01" }, "2026-11-24")).toBeNull();
   });
 
@@ -92,7 +98,9 @@ describe("validation", () => {
   });
 
   it.each(["09876543210", "919876543210", "9876543210", "+91 (98765) 43210"])("accepts %s", (phone) => {
-    expect(createBookingSchema.parse({ ...valid, devotee: { ...valid.devotee, phone } }).devotee.phone).toBe("+919876543210");
+    expect(createBookingSchema.parse({ ...valid, devotee: { ...valid.devotee, phone } }).devotee.phone).toBe(
+      "+919876543210",
+    );
   });
 
   it.each(["12345", "5876543210", "+1 415 555 0100"])("rejects phone %s", (phone) => {
@@ -106,12 +114,20 @@ describe("validation", () => {
 
   it("requires expectedStatus on status changes", () => {
     expect(statusChangeSchema.safeParse({ status: "Confirmed" }).success).toBe(false);
-    expect(statusChangeSchema.parse({ status: "Confirmed", expectedStatus: "Pending", videoUrl: "" }).videoUrl).toBeUndefined();
+    expect(
+      statusChangeSchema.parse({ status: "Confirmed", expectedStatus: "Pending", videoUrl: "" }).videoUrl,
+    ).toBeUndefined();
   });
 
   it("parses list queries with defaults and rejects bad values", () => {
     const ok = parseListQuery(new URLSearchParams("status=In%20Progress&page=2&q="));
-    expect(ok.success && ok.data).toMatchObject({ status: "In Progress", page: 2, pageSize: 10, sort: "createdAt", order: "desc" });
+    expect(ok.success && ok.data).toMatchObject({
+      status: "In Progress",
+      page: 2,
+      pageSize: 10,
+      sort: "createdAt",
+      order: "desc",
+    });
     expect(ok.success && ok.data.q).toBeUndefined();
     expect(parseListQuery(new URLSearchParams("sort=password")).success).toBe(false);
     expect(parseListQuery(new URLSearchParams("pageSize=5000")).success).toBe(false);

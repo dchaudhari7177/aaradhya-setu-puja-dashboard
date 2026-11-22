@@ -85,7 +85,10 @@ describe("POST /api/bookings", () => {
 describe("PATCH /api/bookings/:id/status", () => {
   it("advances the booking and logs a WhatsApp message", async () => {
     const res = await status.PATCH(
-      new Request(url(`/api/bookings/${pendingId}/status`), json("PATCH", { status: "Confirmed", expectedStatus: "Pending" })),
+      new Request(
+        url(`/api/bookings/${pendingId}/status`),
+        json("PATCH", { status: "Confirmed", expectedStatus: "Pending" }),
+      ),
       ctx(pendingId),
     );
     expect(res.status).toBe(200);

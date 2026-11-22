@@ -115,9 +115,7 @@ export function BookingsTable() {
     if (to === "Completed") return setDialog({ booking, to }); // completing asks for the video link
     const previous = data;
     setPendingIds((s) => new Set(s).add(booking.id));
-    setData((d) =>
-      d ? { ...d, items: d.items.map((b) => (b.id === booking.id ? { ...b, status: to } : b)) } : d,
-    );
+    setData((d) => (d ? { ...d, items: d.items.map((b) => (b.id === booking.id ? { ...b, status: to } : b)) } : d));
     try {
       const res = await fetch(`/api/bookings/${booking.id}/status`, {
         method: "PATCH",
@@ -145,8 +143,16 @@ export function BookingsTable() {
     toast(
       n
         ? n.status === "sent"
-          ? { tone: "whatsapp", title: `${result.booking.id} → ${result.booking.status}`, description: `WhatsApp sent to ${n.devoteeName}.` }
-          : { tone: "error", title: `${result.booking.id} → ${result.booking.status}`, description: `WhatsApp failed: ${n.error}` }
+          ? {
+              tone: "whatsapp",
+              title: `${result.booking.id} → ${result.booking.status}`,
+              description: `WhatsApp sent to ${n.devoteeName}.`,
+            }
+          : {
+              tone: "error",
+              title: `${result.booking.id} → ${result.booking.status}`,
+              description: `WhatsApp failed: ${n.error}`,
+            }
         : { tone: "success", title: `${result.booking.id} moved back to ${result.booking.status}` },
     );
     notifyDataChanged(); // refresh KPIs and counts
@@ -162,7 +168,11 @@ export function BookingsTable() {
   return (
     <section className="card overflow-hidden" aria-label="Bookings">
       {/* Status tabs */}
-      <div className="flex gap-1 overflow-x-auto border-b border-line-soft px-3 pt-3 [scrollbar-width:none]" role="tablist" aria-label="Filter by status">
+      <div
+        className="flex [scrollbar-width:none] gap-1 overflow-x-auto border-b border-line-soft px-3 pt-3"
+        role="tablist"
+        aria-label="Filter by status"
+      >
         {(["", ...BOOKING_STATUSES] as const).map((s) => {
           const active = state.status === s;
           return (
@@ -196,7 +206,10 @@ export function BookingsTable() {
       {/* Toolbar */}
       <div className="flex flex-col gap-3 border-b border-line-soft p-3 xl:flex-row xl:items-center">
         <div className="relative min-w-0 flex-1 xl:min-w-72">
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted" aria-hidden />
+          <Search
+            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted"
+            aria-hidden
+          />
           <input
             ref={searchRef}
             type="search"
@@ -263,7 +276,9 @@ export function BookingsTable() {
               aria-pressed={active}
               className={clsx(
                 "rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors",
-                active ? "border-brand-600 bg-brand-50 text-brand-700" : "border-line text-muted hover:border-muted/50 hover:text-ink",
+                active
+                  ? "border-brand-600 bg-brand-50 text-brand-700"
+                  : "border-line text-muted hover:border-muted/50 hover:text-ink",
               )}
             >
               {p.label}
@@ -293,7 +308,9 @@ export function BookingsTable() {
 
       {/* Results */}
       <div className="relative">
-        {loading && data && <div className="absolute inset-x-0 top-0 z-10 h-0.5 animate-pulse bg-brand-500" aria-hidden />}
+        {loading && data && (
+          <div className="absolute inset-x-0 top-0 z-10 h-0.5 animate-pulse bg-brand-500" aria-hidden />
+        )}
 
         {error && !data ? (
           <ErrorState message={error.message} onRetry={reload} />
@@ -317,7 +334,9 @@ export function BookingsTable() {
                   <tr>
                     <SortHeader field="id" label="Booking ID" state={state} onSort={update} />
                     <SortHeader field="devotee" label="Devotee" state={state} onSort={update} />
-                    <th scope="col" className="px-3 py-2.5 font-semibold">Puja</th>
+                    <th scope="col" className="px-3 py-2.5 font-semibold">
+                      Puja
+                    </th>
                     <SortHeader field="pujaDate" label="Puja date" state={state} onSort={update} />
                     <SortHeader field="amount" label="Amount" state={state} onSort={update} align="right" />
                     <SortHeader field="status" label="Status" state={state} onSort={update} />
@@ -347,10 +366,14 @@ export function BookingsTable() {
                       <td className="px-3 py-3 whitespace-nowrap tabular-nums">
                         {formatShortDate(b.pujaDate)}
                         {b.pujaDate === today && (
-                          <span className="ml-1.5 rounded bg-marigold-100 px-1.5 py-px text-[0.6875rem] font-bold text-progress">TODAY</span>
+                          <span className="ml-1.5 rounded bg-marigold-100 px-1.5 py-px text-[0.6875rem] font-bold text-progress">
+                            TODAY
+                          </span>
                         )}
                       </td>
-                      <td className="px-3 py-3 text-right font-semibold whitespace-nowrap tabular-nums">{formatINR(b.amount)}</td>
+                      <td className="px-3 py-3 text-right font-semibold whitespace-nowrap tabular-nums">
+                        {formatINR(b.amount)}
+                      </td>
                       <td className="px-3 py-3">
                         <StatusBadge status={b.status} />
                       </td>
@@ -386,7 +409,13 @@ export function BookingsTable() {
                   </Link>
                   {nextAction(b, today)?.enabled && (
                     <div className="mt-2.5">
-                      <RowActions booking={b} today={today} busy={pendingIds.has(b.id)} onAdvance={quickAdvance} block />
+                      <RowActions
+                        booking={b}
+                        today={today}
+                        busy={pendingIds.has(b.id)}
+                        onAdvance={quickAdvance}
+                        block
+                      />
                     </div>
                   )}
                 </li>
@@ -502,9 +531,22 @@ function SortHeader({
       <button
         type="button"
         onClick={() =>
-          onSort({ sort: field, order: active && state.order === "asc" ? "desc" : active ? "asc" : field === "amount" || field === "pujaDate" ? "desc" : "asc" })
+          onSort({
+            sort: field,
+            order:
+              active && state.order === "asc"
+                ? "desc"
+                : active
+                  ? "asc"
+                  : field === "amount" || field === "pujaDate"
+                    ? "desc"
+                    : "asc",
+          })
         }
-        className={clsx("inline-flex items-center gap-1 whitespace-nowrap uppercase hover:text-ink", active && "text-ink")}
+        className={clsx(
+          "inline-flex items-center gap-1 whitespace-nowrap uppercase hover:text-ink",
+          active && "text-ink",
+        )}
       >
         {label}
         <Icon className={clsx("size-3.5", !active && "opacity-40")} aria-hidden />
@@ -533,8 +575,11 @@ function Pagination({
           "No rows on this page"
         ) : (
           <>
-            Showing <span className="font-semibold text-ink">{start}–{end}</span> of{" "}
-            <span className="font-semibold text-ink">{result.total}</span>
+            Showing{" "}
+            <span className="font-semibold text-ink">
+              {start}–{end}
+            </span>{" "}
+            of <span className="font-semibold text-ink">{result.total}</span>
           </>
         )}
       </p>
@@ -623,7 +668,13 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
       </span>
       <p className="mt-3 font-display text-lg font-bold">Couldn&apos;t load bookings</p>
       <p className="mt-1 max-w-sm text-sm text-muted">{message}</p>
-      <Button variant="secondary" size="sm" className="mt-4" icon={<RefreshCw className="size-3.5" />} onClick={onRetry}>
+      <Button
+        variant="secondary"
+        size="sm"
+        className="mt-4"
+        icon={<RefreshCw className="size-3.5" />}
+        onClick={onRetry}
+      >
         Try again
       </Button>
     </div>

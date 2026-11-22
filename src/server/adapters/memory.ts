@@ -57,7 +57,9 @@ export class MemoryRepository implements BookingRepository {
   }
 
   async exportAll(query: Parameters<BookingRepository["exportAll"]>[0]) {
-    return clone(applyListQuery([...this.bookings.values()], { ...query, page: 1, pageSize: Number.MAX_SAFE_INTEGER }).items);
+    return clone(
+      applyListQuery([...this.bookings.values()], { ...query, page: 1, pageSize: Number.MAX_SAFE_INTEGER }).items,
+    );
   }
 
   async addNotification(n: Omit<NotificationRecord, "id">) {

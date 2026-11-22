@@ -5,7 +5,10 @@ import { notFound, route } from "@/server/errors";
 export const GET = route(async (_request: Request, ctx: RouteContext<"/api/bookings/[id]">) => {
   const { id } = await ctx.params;
   const repo = await getRepository();
-  const [booking, notifications] = await Promise.all([repo.get(id), repo.listNotifications({ bookingId: id, limit: 50 })]);
+  const [booking, notifications] = await Promise.all([
+    repo.get(id),
+    repo.listNotifications({ bookingId: id, limit: 50 }),
+  ]);
   if (!booking) throw notFound(`Booking ${id}`);
   return Response.json({ booking, notifications });
 });

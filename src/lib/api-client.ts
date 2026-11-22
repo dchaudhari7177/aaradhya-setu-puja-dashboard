@@ -30,7 +30,12 @@ export async function api<T>(url: string, init?: RequestInit & { json?: unknown 
   const body = await res.json().catch(() => null);
   if (!res.ok) {
     const e = body?.error;
-    throw new ApiClientError(res.status, e?.code ?? "http_error", e?.message ?? `Request failed (${res.status})`, e?.details);
+    throw new ApiClientError(
+      res.status,
+      e?.code ?? "http_error",
+      e?.message ?? `Request failed (${res.status})`,
+      e?.details,
+    );
   }
   return body as T;
 }
@@ -67,7 +72,8 @@ export function useApi<T>(url: string | null) {
         setError(null);
       })
       .catch((err) => {
-        if (err.name !== "AbortError") setError(err instanceof ApiClientError ? err : new ApiClientError(0, "unknown", String(err)));
+        if (err.name !== "AbortError")
+          setError(err instanceof ApiClientError ? err : new ApiClientError(0, "unknown", String(err)));
       })
       .finally(() => {
         if (!c.signal.aborted) setLoading(false);

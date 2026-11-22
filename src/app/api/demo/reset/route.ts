@@ -7,7 +7,8 @@ import { generateSeed } from "@/server/seed-data";
  * the workflow freely. Disabled when DEMO_RESET=off.
  */
 export const POST = route(async () => {
-  if (process.env.DEMO_RESET === "off") throw new ApiError(403, "disabled", "Demo reset is disabled on this deployment.");
+  if (process.env.DEMO_RESET === "off")
+    throw new ApiError(403, "disabled", "Demo reset is disabled on this deployment.");
   const repo = await getRepository();
   const { bookings, notifications } = generateSeed();
   await repo.reset(bookings, notifications);

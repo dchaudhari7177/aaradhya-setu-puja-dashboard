@@ -36,7 +36,10 @@ const QUERIES: [string, BookingListQuery][] = [
   ["status tab", { ...base, status: "Confirmed" }],
   ["search by name, case-insensitive", { ...base, q: "SHARMA" }],
   ["search by booking ID", { ...base, q: "as-10001" }],
-  ["search by spaced phone digits", { ...base, q: seed.bookings[5].devotee.phone.slice(3, 8) + " " + seed.bookings[5].devotee.phone.slice(8) }],
+  [
+    "search by spaced phone digits",
+    { ...base, q: seed.bookings[5].devotee.phone.slice(3, 8) + " " + seed.bookings[5].devotee.phone.slice(8) },
+  ],
   ["search by temple city", { ...base, q: "varanasi", status: "Completed" }],
   ["puja filter", { ...base, puja: "rudrabhishek" }],
   ["date range", { ...base, from: "2026-11-20", to: "2026-11-30", sort: "pujaDate", order: "asc" }],
@@ -87,10 +90,10 @@ describe.each(adapters)("%s adapter", (_name, make) => {
   });
 
   it("hands out unique sequential IDs under concurrent creates", async () => {
-    const template = { ...seed.bookings[0] } as Partial<typeof seed.bookings[0]>;
+    const template = { ...seed.bookings[0] } as Partial<(typeof seed.bookings)[0]>;
     delete template.id;
     const created = await Promise.all(
-      Array.from({ length: 12 }, () => repo.create(template as Omit<typeof seed.bookings[0], "id">)),
+      Array.from({ length: 12 }, () => repo.create(template as Omit<(typeof seed.bookings)[0], "id">)),
     );
     const ids = created.map((b) => b.id).sort();
     expect(new Set(ids).size).toBe(12);
@@ -114,7 +117,13 @@ describe.each(adapters)("%s adapter", (_name, make) => {
     const after = (await repo.get(pending.id))!;
     expect(after.status).toBe("Confirmed");
     expect(after.history).toHaveLength(pending.history.length + 1);
-    expect(await repo.updateStatus("AS-000000", { expected: "Pending", event: { from: "Pending", to: "Confirmed", at: NOW.toISOString(), by: "x" }, set: { updatedAt: NOW.toISOString() } })).toBeNull();
+    expect(
+      await repo.updateStatus("AS-000000", {
+        expected: "Pending",
+        event: { from: "Pending", to: "Confirmed", at: NOW.toISOString(), by: "x" },
+        set: { updatedAt: NOW.toISOString() },
+      }),
+    ).toBeNull();
   });
 
   it("lists notifications newest first, optionally per booking", async () => {
@@ -124,9 +133,19 @@ describe.each(adapters)("%s adapter", (_name, make) => {
 
     const target = seed.bookings.find((b) => b.status === "Completed")!;
     const mine = await repo.listNotifications({ bookingId: target.id, limit: 50 });
-    expect(mine.map((n) => n.template)).toEqual(["puja_completed", "puja_started", "booking_confirmed", "booking_received"]);
+    expect(mine.map((n) => n.template)).toEqual([
+      "puja_completed",
+      "puja_started",
+      "booking_confirmed",
+      "booking_received",
+    ]);
 
-    const added = await repo.addNotification({ ...mine[0], status: "failed", error: "x", createdAt: "2030-01-01T00:00:00.000Z" });
+    const added = await repo.addNotification({
+      ...mine[0],
+      status: "failed",
+      error: "x",
+      createdAt: "2030-01-01T00:00:00.000Z",
+    });
     expect(added.id).toBeTruthy();
     expect((await repo.listNotifications({ limit: 1 }))[0]).toEqual(added);
   });

@@ -115,16 +115,17 @@ function PipelineBar({ stats }: { stats: DashboardStats | null }) {
       <div
         className="mt-2.5 flex h-2.5 overflow-hidden rounded-full bg-sand"
         role="img"
-        aria-label={
-          stats ? BOOKING_STATUSES.map((s) => `${s}: ${stats.byStatus[s]}`).join(", ") : "Loading pipeline"
-        }
+        aria-label={stats ? BOOKING_STATUSES.map((s) => `${s}: ${stats.byStatus[s]}`).join(", ") : "Loading pipeline"}
       >
         {stats &&
           total > 0 &&
           BOOKING_STATUSES.map((s) => (
             <span
               key={s}
-              className={clsx("h-full transition-[width] duration-500 first:rounded-l-full last:rounded-r-full", STATUS_STYLE[s].dot)}
+              className={clsx(
+                "h-full transition-[width] duration-500 first:rounded-l-full last:rounded-r-full",
+                STATUS_STYLE[s].dot,
+              )}
               style={{ width: `${(stats.byStatus[s] / total) * 100}%` }}
             />
           ))}

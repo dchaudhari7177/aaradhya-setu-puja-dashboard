@@ -20,7 +20,7 @@ export default function DashboardPage() {
       />
       <KpiCards />
       {/* The table reads the URL (filters live in the query string), so it renders below a Suspense boundary. */}
-      <Suspense fallback={<div className="card h-96 skeleton" />}>
+      <Suspense fallback={<div className="card skeleton h-96" />}>
         <BookingsTable />
       </Suspense>
     </div>

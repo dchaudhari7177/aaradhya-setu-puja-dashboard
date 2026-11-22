@@ -1,6 +1,12 @@
 import { PUJA_CATALOG } from "@/lib/domain/catalog";
 import { renderNotification, templateForStatus } from "@/lib/domain/templates";
-import { BOOKING_STATUSES, type Booking, type BookingStatus, type NotificationRecord, type StatusEvent } from "@/lib/domain/types";
+import {
+  BOOKING_STATUSES,
+  type Booking,
+  type BookingStatus,
+  type NotificationRecord,
+  type StatusEvent,
+} from "@/lib/domain/types";
 import { addDaysISO, todayIST } from "@/lib/format";
 import { BOOKING_ID_START, formatBookingId } from "./repository";
 
@@ -21,19 +27,88 @@ function mulberry32(seed: number) {
 }
 
 const FIRST = [
-  "Aarav", "Priya", "Rohan", "Ananya", "Vikram", "Meera", "Arjun", "Kavya", "Siddharth", "Ishita",
-  "Rahul", "Neha", "Aditya", "Pooja", "Karthik", "Lakshmi", "Harsh", "Divya", "Manish", "Sneha",
-  "Venkatesh", "Shalini", "Gaurav", "Anjali", "Suresh", "Ritu", "Pranav", "Deepa", "Nikhil", "Bhavna",
+  "Aarav",
+  "Priya",
+  "Rohan",
+  "Ananya",
+  "Vikram",
+  "Meera",
+  "Arjun",
+  "Kavya",
+  "Siddharth",
+  "Ishita",
+  "Rahul",
+  "Neha",
+  "Aditya",
+  "Pooja",
+  "Karthik",
+  "Lakshmi",
+  "Harsh",
+  "Divya",
+  "Manish",
+  "Sneha",
+  "Venkatesh",
+  "Shalini",
+  "Gaurav",
+  "Anjali",
+  "Suresh",
+  "Ritu",
+  "Pranav",
+  "Deepa",
+  "Nikhil",
+  "Bhavna",
 ];
 const LAST = [
-  "Sharma", "Iyer", "Patel", "Reddy", "Mehta", "Nair", "Kulkarni", "Gupta", "Joshi", "Rao",
-  "Chatterjee", "Desai", "Verma", "Pillai", "Agarwal", "Mishra", "Banerjee", "Shetty", "Chauhan", "Menon",
+  "Sharma",
+  "Iyer",
+  "Patel",
+  "Reddy",
+  "Mehta",
+  "Nair",
+  "Kulkarni",
+  "Gupta",
+  "Joshi",
+  "Rao",
+  "Chatterjee",
+  "Desai",
+  "Verma",
+  "Pillai",
+  "Agarwal",
+  "Mishra",
+  "Banerjee",
+  "Shetty",
+  "Chauhan",
+  "Menon",
 ];
 const CITIES = [
-  "Mumbai", "Pune", "Bengaluru", "Delhi", "Hyderabad", "Chennai", "Kolkata", "Ahmedabad", "Jaipur", "Lucknow",
-  "Indore", "Nagpur", "Dubai", "Singapore", "London",
+  "Mumbai",
+  "Pune",
+  "Bengaluru",
+  "Delhi",
+  "Hyderabad",
+  "Chennai",
+  "Kolkata",
+  "Ahmedabad",
+  "Jaipur",
+  "Lucknow",
+  "Indore",
+  "Nagpur",
+  "Dubai",
+  "Singapore",
+  "London",
 ];
-const GOTRAS = ["Kashyap", "Bharadwaj", "Vashishtha", "Gautam", "Atri", "Vishwamitra", "Jamadagni", "Shandilya", "Kaushik", "Agastya"];
+const GOTRAS = [
+  "Kashyap",
+  "Bharadwaj",
+  "Vashishtha",
+  "Gautam",
+  "Atri",
+  "Vishwamitra",
+  "Jamadagni",
+  "Shandilya",
+  "Kaushik",
+  "Agastya",
+];
 const WISHES = [
   "For good health of my parents",
   "Success in my daughter's board exams",
@@ -54,7 +129,7 @@ export interface SeedResult {
 
 export function generateSeed(now: Date = new Date(), count = 72, seed = 2026): SeedResult {
   const rand = mulberry32(seed);
-  const pick = <T,>(arr: readonly T[]) => arr[Math.floor(rand() * arr.length)];
+  const pick = <T>(arr: readonly T[]) => arr[Math.floor(rand() * arr.length)];
   const today = todayIST(now);
   const bookings: Booking[] = [];
   const notifications: Omit<NotificationRecord, "id">[] = [];
@@ -145,7 +220,9 @@ function buildHistory(
   now: Date,
   rand: () => number,
 ): StatusEvent[] {
-  const events: StatusEvent[] = [{ from: null, to: "Pending", at: new Date(createdMs).toISOString(), by: "Website", note: "Booking created" }];
+  const events: StatusEvent[] = [
+    { from: null, to: "Pending", at: new Date(createdMs).toISOString(), by: "Website", note: "Booking created" },
+  ];
   const target = BOOKING_STATUSES.indexOf(status);
   const pujaStart = Date.parse(`${pujaDate}T01:30:00Z`) + Math.floor(rand() * 5) * HOUR; // 7:00 IST onwards
   const cap = now.getTime() - 5 * 60_000;
@@ -157,7 +234,12 @@ function buildHistory(
   ];
   for (let i = 1; i <= target; i++) {
     const at = Math.min(Math.max(times[i], Date.parse(events[i - 1].at) + 10 * 60_000), cap);
-    events.push({ from: BOOKING_STATUSES[i - 1], to: BOOKING_STATUSES[i], at: new Date(at).toISOString(), by: rand() < 0.5 ? "Ops Team" : "Admin" });
+    events.push({
+      from: BOOKING_STATUSES[i - 1],
+      to: BOOKING_STATUSES[i],
+      at: new Date(at).toISOString(),
+      by: rand() < 0.5 ? "Ops Team" : "Admin",
+    });
   }
   return events;
 }

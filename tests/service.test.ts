@@ -55,7 +55,12 @@ describe("changeStatus", () => {
     expect(done.notification?.message).toContain("https://youtu.be/abc123");
 
     const log = await repo.listNotifications({ bookingId: booking.id, limit: 10 });
-    expect(log.map((n) => n.template)).toEqual(["puja_completed", "puja_started", "booking_confirmed", "booking_received"]);
+    expect(log.map((n) => n.template)).toEqual([
+      "puja_completed",
+      "puja_started",
+      "booking_confirmed",
+      "booking_received",
+    ]);
   });
 
   it("keeps an explicitly chosen pandit", async () => {
@@ -68,9 +73,17 @@ describe("changeStatus", () => {
   it("records rollbacks with their note but does not message the devotee", async () => {
     const { booking } = await createBooking(ctx(), input());
     await move(booking.id, { status: "Confirmed", expectedStatus: "Pending" });
-    const back = await move(booking.id, { status: "Pending", expectedStatus: "Confirmed", note: "Devotee asked to change the date" });
+    const back = await move(booking.id, {
+      status: "Pending",
+      expectedStatus: "Confirmed",
+      note: "Devotee asked to change the date",
+    });
     expect(back.notification).toBeNull();
-    expect(back.booking.history.at(-1)).toMatchObject({ from: "Confirmed", to: "Pending", note: "Devotee asked to change the date" });
+    expect(back.booking.history.at(-1)).toMatchObject({
+      from: "Confirmed",
+      to: "Pending",
+      note: "Devotee asked to change the date",
+    });
     expect(await repo.listNotifications({ bookingId: booking.id, limit: 10 })).toHaveLength(2);
   });
 
@@ -81,7 +94,9 @@ describe("changeStatus", () => {
       code: "invalid_transition",
     });
     await move(booking.id, { status: "Confirmed", expectedStatus: "Pending" });
-    await expect(move(booking.id, { status: "Confirmed", expectedStatus: "Pending" })).rejects.toBeInstanceOf(ConflictError);
+    await expect(move(booking.id, { status: "Confirmed", expectedStatus: "Pending" })).rejects.toBeInstanceOf(
+      ConflictError,
+    );
   });
 
   it("refuses to start a puja before its date (IST)", async () => {
@@ -94,7 +109,9 @@ describe("changeStatus", () => {
   });
 
   it("returns 404 for unknown bookings", async () => {
-    await expect(move("AS-999999", { status: "Confirmed", expectedStatus: "Pending" })).rejects.toBeInstanceOf(ApiError);
+    await expect(move("AS-999999", { status: "Confirmed", expectedStatus: "Pending" })).rejects.toBeInstanceOf(
+      ApiError,
+    );
   });
 });
 
@@ -104,10 +121,7 @@ describe("notification delivery", () => {
     expect(notification.status).toBe("failed");
     expect(notification.error).toMatch(/not a WhatsApp user/);
 
-    await repo.reset(
-      [{ ...booking, devotee: { ...booking.devotee, phone: "+919876543210" } }],
-      [],
-    );
+    await repo.reset([{ ...booking, devotee: { ...booking.devotee, phone: "+919876543210" } }], []);
     const retry = await resendLatest(ctx(), booking.id);
     expect(retry).toMatchObject({ status: "sent", template: "booking_received" });
   });

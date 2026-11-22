@@ -51,7 +51,10 @@ export function checkTransition(
     return { ok: false, reason: "Moving a booking back needs a short note explaining why." };
   }
   if (to === "In Progress" && opts.pujaDate && opts.today && !canStartOn(opts.pujaDate, opts.today)) {
-    return { ok: false, reason: `This puja is scheduled for ${formatPujaDate(opts.pujaDate)}. It can be started on the puja day.` };
+    return {
+      ok: false,
+      reason: `This puja is scheduled for ${formatPujaDate(opts.pujaDate)}. It can be started on the puja day.`,
+    };
   }
   return { ok: true };
 }

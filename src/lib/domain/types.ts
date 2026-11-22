@@ -43,11 +43,7 @@ export interface Booking {
   updatedAt: string;
 }
 
-export type NotificationTemplateKey =
-  | "booking_received"
-  | "booking_confirmed"
-  | "puja_started"
-  | "puja_completed";
+export type NotificationTemplateKey = "booking_received" | "booking_confirmed" | "puja_started" | "puja_completed";
 
 export interface NotificationRecord {
   id: string;

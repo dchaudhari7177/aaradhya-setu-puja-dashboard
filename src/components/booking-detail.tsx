@@ -46,8 +46,12 @@ export function BookingDetail() {
   if (error && !data) {
     return (
       <div className="card mx-auto mt-10 max-w-md p-8 text-center">
-        <p className="font-display text-xl font-bold">{error.status === 404 ? "Booking not found" : "Couldn't load this booking"}</p>
-        <p className="mt-2 text-sm text-muted">{error.status === 404 ? `There is no booking with ID ${id}.` : error.message}</p>
+        <p className="font-display text-xl font-bold">
+          {error.status === 404 ? "Booking not found" : "Couldn't load this booking"}
+        </p>
+        <p className="mt-2 text-sm text-muted">
+          {error.status === 404 ? `There is no booking with ID ${id}.` : error.message}
+        </p>
         <div className="mt-5 flex justify-center gap-2">
           {error.status !== 404 && (
             <Button variant="secondary" onClick={reload}>
@@ -74,9 +78,17 @@ export function BookingDetail() {
     toast(
       n
         ? n.status === "sent"
-          ? { tone: "whatsapp", title: `Moved to ${result.booking.status}`, description: `WhatsApp sent to ${n.devoteeName}.` }
+          ? {
+              tone: "whatsapp",
+              title: `Moved to ${result.booking.status}`,
+              description: `WhatsApp sent to ${n.devoteeName}.`,
+            }
           : { tone: "error", title: `Moved to ${result.booking.status}`, description: `WhatsApp failed: ${n.error}` }
-        : { tone: "success", title: `Moved back to ${result.booking.status}`, description: "Recorded in the history. No message sent." },
+        : {
+            tone: "success",
+            title: `Moved back to ${result.booking.status}`,
+            description: "Recorded in the history. No message sent.",
+          },
     );
     notifyDataChanged();
   }
@@ -92,11 +104,14 @@ export function BookingDetail() {
           <div className="flex flex-wrap items-center gap-2">
             <CopyId id={booking.id} />
             <StatusBadge status={booking.status} />
-            <span className="rounded-full bg-sand px-2.5 py-0.5 text-xs font-semibold text-muted">{booking.puja.category}</span>
+            <span className="rounded-full bg-sand px-2.5 py-0.5 text-xs font-semibold text-muted">
+              {booking.puja.category}
+            </span>
           </div>
           <h1 className="mt-2 text-2xl leading-tight font-bold sm:text-3xl">{booking.puja.name}</h1>
           <p className="mt-1 text-[0.9375rem] text-muted">
-            for <span className="font-semibold text-ink">{booking.devotee.name}</span> · {formatPujaDate(booking.pujaDate)}
+            for <span className="font-semibold text-ink">{booking.devotee.name}</span> ·{" "}
+            {formatPujaDate(booking.pujaDate)}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -111,7 +126,9 @@ export function BookingDetail() {
             ) : (
               <span className="flex flex-col items-end">
                 <Button disabled>{action.label}</Button>
-                <span className="mt-1 text-xs text-muted">Available on the puja day ({action.reason?.replace("Starts ", "")})</span>
+                <span className="mt-1 text-xs text-muted">
+                  Available on the puja day ({action.reason?.replace("Starts ", "")})
+                </span>
               </span>
             ))}
           {!action && (
@@ -130,14 +147,27 @@ export function BookingDetail() {
             <Section title="Puja details" icon={Flame}>
               <Row icon={Landmark} label="Temple" value={`${booking.temple.name}, ${booking.temple.city}`} />
               <Row icon={CalendarDays} label="Puja date" value={formatPujaDate(booking.pujaDate)} />
-              <Row icon={IndianRupee} label="Amount" value={<span className="font-semibold">{formatINR(booking.amount)}</span>} />
-              <Row icon={Gem} label="Pandit" value={booking.pandit ?? <span className="text-muted">Assigned on confirmation</span>} />
+              <Row
+                icon={IndianRupee}
+                label="Amount"
+                value={<span className="font-semibold">{formatINR(booking.amount)}</span>}
+              />
+              <Row
+                icon={Gem}
+                label="Pandit"
+                value={booking.pandit ?? <span className="text-muted">Assigned on confirmation</span>}
+              />
               {booking.videoUrl && (
                 <Row
                   icon={Video}
                   label="Puja video"
                   value={
-                    <a href={booking.videoUrl} target="_blank" rel="noreferrer" className="break-all text-brand-700 hover:underline">
+                    <a
+                      href={booking.videoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="break-all text-brand-700 hover:underline"
+                    >
                       {booking.videoUrl.replace(/^https?:\/\//, "")}
                     </a>
                   }
@@ -167,7 +197,11 @@ export function BookingDetail() {
                 />
               )}
               <Row icon={MapPin} label="City" value={booking.devotee.city} />
-              <Row icon={ScrollText} label="Gotra" value={booking.devotee.gotra ?? <span className="text-muted">Not provided</span>} />
+              <Row
+                icon={ScrollText}
+                label="Gotra"
+                value={booking.devotee.gotra ?? <span className="text-muted">Not provided</span>}
+              />
             </Section>
           </div>
 
@@ -251,10 +285,17 @@ function Stepper({ booking }: { booking: Booking }) {
         const done = i < current;
         const active = i === current;
         return (
-          <li key={s} className="relative flex flex-col items-center text-center" aria-current={active ? "step" : undefined}>
+          <li
+            key={s}
+            className="relative flex flex-col items-center text-center"
+            aria-current={active ? "step" : undefined}
+          >
             {i > 0 && (
               <span
-                className={clsx("absolute top-4 right-1/2 h-0.5 w-full -translate-y-1/2", i <= current ? "bg-brand-600" : "bg-line")}
+                className={clsx(
+                  "absolute top-4 right-1/2 h-0.5 w-full -translate-y-1/2",
+                  i <= current ? "bg-brand-600" : "bg-line",
+                )}
                 aria-hidden
               />
             )}
@@ -268,7 +309,14 @@ function Stepper({ booking }: { booking: Booking }) {
             >
               {done ? <Check className="size-4" /> : i + 1}
             </span>
-            <span className={clsx("mt-2 text-xs font-semibold sm:text-sm", active ? "text-ink" : done ? "text-ink/80" : "text-muted")}>{s}</span>
+            <span
+              className={clsx(
+                "mt-2 text-xs font-semibold sm:text-sm",
+                active ? "text-ink" : done ? "text-ink/80" : "text-muted",
+              )}
+            >
+              {s}
+            </span>
             <span className="mt-0.5 hidden text-xs text-muted sm:block">
               {i <= current && reachedAt.get(s) ? formatDateTime(reachedAt.get(s)!) : "—"}
             </span>
@@ -279,7 +327,15 @@ function Stepper({ booking }: { booking: Booking }) {
   );
 }
 
-function Section({ title, icon: Icon, children }: { title: string; icon: ComponentType<{ className?: string }>; children: ReactNode }) {
+function Section({
+  title,
+  icon: Icon,
+  children,
+}: {
+  title: string;
+  icon: ComponentType<{ className?: string }>;
+  children: ReactNode;
+}) {
   return (
     <section className="card p-4 sm:p-5">
       <h2 className="mb-3 flex items-center gap-2 text-base font-bold">
@@ -291,7 +347,15 @@ function Section({ title, icon: Icon, children }: { title: string; icon: Compone
   );
 }
 
-function Row({ icon: Icon, label, value }: { icon: ComponentType<{ className?: string }>; label: string; value: ReactNode }) {
+function Row({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+  value: ReactNode;
+}) {
   return (
     <div className="flex gap-3 border-b border-line-soft py-2 text-sm last:border-0">
       <Icon className="mt-0.5 size-4 shrink-0 text-muted" />

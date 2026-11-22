@@ -6,12 +6,26 @@ import { ApiError, route } from "@/server/errors";
 /** GET /api/bookings/export?<same filters as the list>: CSV of every matching booking. */
 export const GET = route(async (request: Request) => {
   const parsed = parseListQuery(new URL(request.url).searchParams);
-  if (!parsed.success) throw new ApiError(400, "invalid_query", "Invalid export parameters.", fieldErrors(parsed.error));
+  if (!parsed.success)
+    throw new ApiError(400, "invalid_query", "Invalid export parameters.", fieldErrors(parsed.error));
   const repo = await getRepository();
   const rows = await repo.exportAll(parsed.data);
 
   const csv = toCsv(
-    ["Booking ID", "Devotee", "Phone", "City", "Puja", "Category", "Temple", "Puja Date", "Amount (INR)", "Status", "Pandit", "Created At"],
+    [
+      "Booking ID",
+      "Devotee",
+      "Phone",
+      "City",
+      "Puja",
+      "Category",
+      "Temple",
+      "Puja Date",
+      "Amount (INR)",
+      "Status",
+      "Pandit",
+      "Created At",
+    ],
     rows.map((b) => [
       b.id,
       b.devotee.name,

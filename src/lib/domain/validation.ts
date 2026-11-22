@@ -54,10 +54,7 @@ export const createBookingSchema = z.object({
     .int("Amount must be in whole rupees")
     .min(1, "Amount must be at least ₹1")
     .max(10_00_000, "Amount looks too large"),
-  sankalpNames: z
-    .array(z.string().trim().min(1).max(60))
-    .max(8, "A sankalp can include up to 8 names")
-    .default([]),
+  sankalpNames: z.array(z.string().trim().min(1).max(60)).max(8, "A sankalp can include up to 8 names").default([]),
   wish: optionalText(300),
 });
 

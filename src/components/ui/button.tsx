@@ -33,7 +33,17 @@ interface Props extends ComponentProps<"button"> {
   icon?: ReactNode;
 }
 
-export function Button({ variant, size, loading, icon, className, children, disabled, type = "button", ...rest }: Props) {
+export function Button({
+  variant,
+  size,
+  loading,
+  icon,
+  className,
+  children,
+  disabled,
+  type = "button",
+  ...rest
+}: Props) {
   return (
     <button type={type} className={buttonClass(variant, size, className)} disabled={disabled || loading} {...rest}>
       {loading ? <LoaderCircle className="size-4 animate-spin" aria-hidden /> : icon}
