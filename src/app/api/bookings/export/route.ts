@@ -1,7 +1,8 @@
 import { fieldErrors, parseListQuery } from "@/lib/domain/validation";
 import { toCsv } from "@/lib/csv";
 import { getRepository } from "@/server/db";
-import { ApiError, route } from "@/server/errors";
+import { ApiError } from "@/server/errors";
+import { route } from "@/server/route";
 
 /** GET /api/bookings/export?<same filters as the list>: CSV of every matching booking. */
 export const GET = route(async (request: Request) => {

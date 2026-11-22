@@ -1,5 +1,6 @@
 import { getRepository } from "@/server/db";
-import { ApiError, route } from "@/server/errors";
+import { ApiError } from "@/server/errors";
+import { route } from "@/server/route";
 import { generateSeed } from "@/server/seed-data";
 
 /**

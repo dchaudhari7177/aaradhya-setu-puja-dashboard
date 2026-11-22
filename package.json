@@ -11,10 +11,11 @@
     "typecheck": "next typegen && tsc --noEmit",
     "seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
     "format": "prettier --write .",
-    "test:firestore": "firebase emulators:exec --only firestore --project demo-aaradhya-setu \"vitest run tests/repository.contract.test.ts\""
+    "test:emulators": "firebase emulators:exec --only firestore,auth --project demo-aaradhya-setu \"vitest run tests/repository.contract.test.ts tests/auth.emulator.test.ts\""
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "firebase": "^13.4.0",
     "firebase-admin": "^14.5.1",
     "lucide-react": "^1.77.0",
     "mongoose": "^9.12.3",

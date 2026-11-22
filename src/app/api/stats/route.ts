@@ -1,6 +1,6 @@
 import { connection } from "next/server";
 import { getRepository } from "@/server/db";
-import { route } from "@/server/errors";
+import { route } from "@/server/route";
 
 /** GET /api/stats: KPI numbers for the dashboard header. */
 export const GET = route(async () => {

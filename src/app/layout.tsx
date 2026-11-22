@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Mukta } from "next/font/google";
 import { AppShell } from "@/components/app-shell";
+import { AuthProvider } from "@/components/auth-provider";
 import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
 
@@ -25,9 +26,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     // Font variables sit on <html> so the @theme tokens (declared on :root) can resolve them.
     <html lang="en" className={`${bricolage.variable} ${mukta.variable} antialiased`}>
       <body className="min-h-dvh">
-        <ToastProvider>
-          <AppShell>{children}</AppShell>
-        </ToastProvider>
+        <AuthProvider>
+          <ToastProvider>
+            <AppShell>{children}</AppShell>
+          </ToastProvider>
+        </AuthProvider>
       </body>
     </html>
   );

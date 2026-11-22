@@ -1,5 +1,5 @@
-import { cert, getApps, initializeApp, type App, type ServiceAccount } from "firebase-admin/app";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
+import { adminApp, serviceAccount } from "../firebase-admin";
 import { applyListQuery, computeStats } from "@/lib/domain/query";
 import type { Booking, BookingListQuery, NotificationRecord } from "@/lib/domain/types";
 import {
@@ -26,41 +26,13 @@ import {
  */
 
 export function firestoreConfigured(): boolean {
-  return Boolean(
-    process.env.FIREBASE_SERVICE_ACCOUNT ||
-    (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) ||
-    process.env.FIRESTORE_EMULATOR_HOST,
-  );
-}
-
-function credentials(): ServiceAccount | undefined {
-  const raw = process.env.FIREBASE_SERVICE_ACCOUNT?.trim();
-  if (raw) {
-    const json = raw.startsWith("{") ? raw : Buffer.from(raw, "base64").toString("utf8");
-    const parsed = JSON.parse(json) as { project_id: string; client_email: string; private_key: string };
-    return { projectId: parsed.project_id, clientEmail: parsed.client_email, privateKey: parsed.private_key };
-  }
-  if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
-    return {
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-    };
-  }
-  return undefined;
+  return Boolean(serviceAccount() || process.env.FIRESTORE_EMULATOR_HOST);
 }
 
 function db(): Firestore {
   const g = globalThis as typeof globalThis & { __firestore?: Firestore };
   if (g.__firestore) return g.__firestore;
-  const app: App =
-    getApps()[0] ??
-    initializeApp(
-      process.env.FIRESTORE_EMULATOR_HOST && !credentials()
-        ? { projectId: process.env.FIREBASE_PROJECT_ID ?? "demo-aaradhya-setu" }
-        : { credential: cert(credentials()!) },
-    );
-  const firestore = getFirestore(app);
+  const firestore = getFirestore(adminApp());
   firestore.settings({ ignoreUndefinedProperties: true });
   return (g.__firestore = firestore);
 }

@@ -1,9 +1,10 @@
 import { getRepository } from "@/server/db";
-import { notFound, route } from "@/server/errors";
+import { notFound } from "@/server/errors";
+import { route } from "@/server/route";
 
 /** GET /api/bookings/:id: one booking with its full status history and WhatsApp log. */
-export const GET = route(async (_request: Request, ctx: RouteContext<"/api/bookings/[id]">) => {
-  const { id } = await ctx.params;
+export const GET = route<RouteContext<"/api/bookings/[id]">>(async (_request, { params }) => {
+  const { id } = await params;
   const repo = await getRepository();
   const [booking, notifications] = await Promise.all([
     repo.get(id),

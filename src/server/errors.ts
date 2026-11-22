@@ -1,4 +1,3 @@
-import { unstable_rethrow } from "next/navigation";
 import { ZodError } from "zod";
 import { fieldErrors } from "@/lib/domain/validation";
 import { ConflictError } from "./repository";
@@ -51,15 +50,4 @@ export function errorResponse(err: unknown): Response {
     { error: { code: "internal", message: "Something went wrong on our side. Please try again." } },
     { status: 500 },
   );
-}
-
-export function route<A extends unknown[]>(handler: (...args: A) => Promise<Response>) {
-  return async (...args: A): Promise<Response> => {
-    try {
-      return await handler(...args);
-    } catch (err) {
-      unstable_rethrow(err); // let Next.js control-flow signals (prerender bailout, redirects) through
-      return errorResponse(err);
-    }
-  };
 }

@@ -1,7 +1,8 @@
 import { createBookingSchema, parseListQuery } from "@/lib/domain/validation";
 import { createBooking } from "@/server/bookings-service";
 import { getRepository } from "@/server/db";
-import { ApiError, route } from "@/server/errors";
+import { ApiError } from "@/server/errors";
+import { route } from "@/server/route";
 import { fieldErrors } from "@/lib/domain/validation";
 
 /**
@@ -18,9 +19,9 @@ export const GET = route(async (request: Request) => {
 });
 
 /** POST /api/bookings: create a booking (starts as Pending and messages the devotee). */
-export const POST = route(async (request: Request) => {
+export const POST = route(async (request, { actor }) => {
   const body = createBookingSchema.parse(await request.json());
   const repo = await getRepository();
-  const result = await createBooking({ repo }, body);
+  const result = await createBooking({ repo, actor: actor.name }, body);
   return Response.json(result, { status: 201, headers: { Location: `/api/bookings/${result.booking.id}` } });
 });

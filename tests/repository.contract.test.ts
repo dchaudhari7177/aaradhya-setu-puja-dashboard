@@ -55,7 +55,7 @@ const adapters: [string, () => BookingRepository][] = [
   ["memory", () => new MemoryRepository()],
   ["mongodb", () => new MongoRepository()],
 ];
-// Firestore joins the suite when the emulator is running: `npm run test:firestore`.
+// Firestore joins the suite when the emulator is running: `npm run test:emulators`.
 if (process.env.FIRESTORE_EMULATOR_HOST) adapters.push(["firestore", () => new FirestoreRepository()]);
 
 describe.each(adapters)("%s adapter", (_name, make) => {

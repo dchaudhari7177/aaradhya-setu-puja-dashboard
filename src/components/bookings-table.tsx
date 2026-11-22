@@ -27,7 +27,7 @@ import {
   type SortField,
 } from "@/lib/domain/types";
 import { addDaysISO, formatINR, formatPhone, formatShortDate, todayIST } from "@/lib/format";
-import { notifyDataChanged, useApi } from "@/lib/api-client";
+import { api, ApiClientError, downloadFile, notifyDataChanged, useApi } from "@/lib/api-client";
 import { StatusBadge, STATUS_STYLE } from "./status-badge";
 import { StatusChangeDialog, type StatusChangeResult } from "./status-change-dialog";
 import { Button, buttonClass } from "./ui/button";
@@ -107,6 +107,7 @@ export function BookingsTable() {
 
   const [dialog, setDialog] = useState<{ booking: Booking; to: BookingStatus } | null>(null);
   const [pendingIds, setPendingIds] = useState<Set<string>>(new Set());
+  const [exporting, setExporting] = useState(false);
 
   /** Optimistic advance from the table: the row moves immediately and rolls back if the API refuses. */
   async function quickAdvance(booking: Booking) {
@@ -117,18 +118,15 @@ export function BookingsTable() {
     setPendingIds((s) => new Set(s).add(booking.id));
     setData((d) => (d ? { ...d, items: d.items.map((b) => (b.id === booking.id ? { ...b, status: to } : b)) } : d));
     try {
-      const res = await fetch(`/api/bookings/${booking.id}/status`, {
+      const result = await api<StatusChangeResult>(`/api/bookings/${booking.id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: to, expectedStatus: booking.status }),
+        json: { status: to, expectedStatus: booking.status },
       });
-      const body = await res.json();
-      if (!res.ok) throw Object.assign(new Error(body?.error?.message ?? "Update failed"), { status: res.status });
-      announce(body as StatusChangeResult);
+      announce(result);
     } catch (err) {
       setData(previous);
       toast({ tone: "error", title: `Couldn't update ${booking.id}`, description: (err as Error).message });
-      if ((err as { status?: number }).status === 409) notifyDataChanged();
+      if (err instanceof ApiClientError && err.status === 409) notifyDataChanged();
     } finally {
       setPendingIds((s) => {
         const n = new Set(s);
@@ -299,10 +297,24 @@ export function BookingsTable() {
               Clear filters
             </Button>
           )}
-          <a href={exportUrl} className={buttonClass("ghost", "sm")} download>
-            <Download className="size-3.5" aria-hidden />
+          <Button
+            variant="ghost"
+            size="sm"
+            loading={exporting}
+            icon={<Download className="size-3.5" aria-hidden />}
+            onClick={async () => {
+              setExporting(true);
+              try {
+                await downloadFile(exportUrl, "puja-bookings.csv");
+              } catch (err) {
+                toast({ tone: "error", title: "Export failed", description: (err as Error).message });
+              } finally {
+                setExporting(false);
+              }
+            }}
+          >
             Export CSV
-          </a>
+          </Button>
         </div>
       </div>
 

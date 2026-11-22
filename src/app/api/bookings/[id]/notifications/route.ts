@@ -3,11 +3,11 @@ import { NOTIFICATION_TEMPLATES } from "@/lib/domain/templates";
 import type { NotificationTemplateKey } from "@/lib/domain/types";
 import { resendLatest } from "@/server/bookings-service";
 import { getRepository } from "@/server/db";
-import { route } from "@/server/errors";
+import { route } from "@/server/route";
 
 /** GET /api/bookings/:id/notifications: WhatsApp messages for one booking, newest first. */
-export const GET = route(async (_request: Request, ctx: RouteContext<"/api/bookings/[id]/notifications">) => {
-  const { id } = await ctx.params;
+export const GET = route<RouteContext<"/api/bookings/[id]/notifications">>(async (_request, { params }) => {
+  const { id } = await params;
   const repo = await getRepository();
   return Response.json({ items: await repo.listNotifications({ bookingId: id, limit: 50 }) });
 });
@@ -19,10 +19,13 @@ const resendSchema = z.object({
 });
 
 /** POST /api/bookings/:id/notifications: re-send the message for the booking's current stage. */
-export const POST = route(async (request: Request, ctx: RouteContext<"/api/bookings/[id]/notifications">) => {
-  const { id } = await ctx.params;
+export const POST = route<RouteContext<"/api/bookings/[id]/notifications">>(async (request, { params, actor }) => {
+  const { id } = await params;
   const text = await request.text();
   const { template } = resendSchema.parse(text ? JSON.parse(text) : {});
   const repo = await getRepository();
-  return Response.json({ notification: await resendLatest({ repo }, id, template) }, { status: 201 });
+  return Response.json(
+    { notification: await resendLatest({ repo, actor: actor.name }, id, template) },
+    { status: 201 },
+  );
 });

@@ -1,5 +1,5 @@
 import { getRepository } from "@/server/db";
-import { route } from "@/server/errors";
+import { route } from "@/server/route";
 
 /** GET /api/notifications?limit=100: the latest WhatsApp messages across all bookings. */
 export const GET = route(async (request: Request) => {

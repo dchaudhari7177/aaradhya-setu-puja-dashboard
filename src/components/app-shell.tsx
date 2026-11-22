@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState, type ReactNode } from "react";
-import { Database, LayoutDashboard, Menu, MessageCircle, Plus, RotateCcw, X } from "lucide-react";
+import { Database, LayoutDashboard, LogOut, Menu, MessageCircle, Plus, RotateCcw, X } from "lucide-react";
 import clsx from "clsx";
 import { Logo } from "./logo";
+import { useAuth } from "./auth-provider";
+import { SignInScreen } from "./sign-in-screen";
 import { useToast } from "./ui/toast";
 import { api, notifyDataChanged, useApi } from "@/lib/api-client";
 
@@ -26,6 +28,23 @@ const NAV = [
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const { status } = useAuth();
+  if (status === "loading") return <Splash />;
+  if (status === "signed-out") return <SignInScreen />;
+  return <Shell>{children}</Shell>;
+}
+
+function Splash() {
+  return (
+    <div className="grid min-h-dvh place-items-center bg-cream" role="status" aria-label="Loading">
+      <div className="animate-pulse">
+        <Logo compact />
+      </div>
+    </div>
+  );
+}
+
+function Shell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -100,6 +119,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         <ActiveNavLinks onNavigate={onNavigate} />
       </Suspense>
       <div className="mt-auto space-y-3 p-4">
+        <UserCard />
         <SystemCard />
         <p className="px-1 text-xs text-cream/45">Prototype for the Aaradhya Setu SDE intern assignment.</p>
       </div>
@@ -133,6 +153,32 @@ function NavLinks({ pathname, onNavigate }: { pathname: string | null; onNavigat
         );
       })}
     </nav>
+  );
+}
+
+function UserCard() {
+  const { status, user, signOut } = useAuth();
+  if (status !== "signed-in" || !user) return null;
+  const label = user.displayName || user.email || "Admin";
+  return (
+    <div className="flex items-center gap-2.5 rounded-xl bg-white/5 p-2.5">
+      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-brand-600 text-sm font-bold text-white uppercase">
+        {label.charAt(0)}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-semibold">{label}</span>
+        {user.displayName && user.email && <span className="block truncate text-xs text-cream/55">{user.email}</span>}
+      </span>
+      <button
+        type="button"
+        onClick={() => void signOut()}
+        className="rounded-lg p-1.5 text-cream/70 hover:bg-white/10 hover:text-cream"
+        aria-label="Sign out"
+        title="Sign out"
+      >
+        <LogOut className="size-4" />
+      </button>
+    </div>
   );
 }
 
