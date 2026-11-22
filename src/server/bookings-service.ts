@@ -3,6 +3,7 @@ import { checkTransition, isRollback } from "@/lib/domain/status";
 import { NOTIFICATION_TEMPLATES, renderNotification, templateForStatus } from "@/lib/domain/templates";
 import type { Booking, NotificationRecord, NotificationTemplateKey } from "@/lib/domain/types";
 import type { CreateBookingData, StatusChangeData } from "@/lib/domain/validation";
+import { todayIST } from "@/lib/format";
 import { ApiError, invalidTransition, notFound } from "./errors";
 import { ConflictError, type BookingRepository } from "./repository";
 import { whatsapp, type MessagingProvider } from "./whatsapp";
@@ -52,7 +53,11 @@ export async function changeStatus(ctx: ServiceContext, id: string, change: Stat
     throw new ConflictError(`Booking is now ${current.status}.`, current);
   }
 
-  const verdict = checkTransition(current.status, change.status, { note: change.note });
+  const verdict = checkTransition(current.status, change.status, {
+    note: change.note,
+    pujaDate: current.pujaDate,
+    today: todayIST(clock(ctx)),
+  });
   if (!verdict.ok) throw invalidTransition(verdict.reason);
 
   // A confirmed booking always has a pandit: use the one chosen, the one

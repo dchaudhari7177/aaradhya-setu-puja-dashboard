@@ -9,11 +9,11 @@ let repo: MemoryRepository;
 let tick = 0;
 const ctx = () => ({ repo, now: () => new Date(Date.UTC(2026, 10, 22, 10, 0, tick++)) });
 
-const input = (phone = "9876543210") =>
+const input = (phone = "9876543210", pujaDate = "2026-11-22") =>
   createBookingSchema.parse({
     devotee: { name: "Meera Krishnan", phone, city: "Mumbai" },
     pujaSlug: "rudrabhishek",
-    pujaDate: "2026-11-24",
+    pujaDate,
     amount: 2100,
     sankalpNames: ["Meera Krishnan"],
   });
@@ -82,6 +82,15 @@ describe("changeStatus", () => {
     });
     await move(booking.id, { status: "Confirmed", expectedStatus: "Pending" });
     await expect(move(booking.id, { status: "Confirmed", expectedStatus: "Pending" })).rejects.toBeInstanceOf(ConflictError);
+  });
+
+  it("refuses to start a puja before its date (IST)", async () => {
+    const { booking } = await createBooking(ctx(), input("9876543210", "2026-11-25"));
+    await move(booking.id, { status: "Confirmed", expectedStatus: "Pending" });
+    await expect(move(booking.id, { status: "In Progress", expectedStatus: "Confirmed" })).rejects.toMatchObject({
+      status: 422,
+      message: expect.stringContaining("Wed, 25 Nov 2026"),
+    });
   });
 
   it("returns 404 for unknown bookings", async () => {

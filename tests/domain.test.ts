@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { allowedTransitions, checkTransition, nextStatus, previousStatus } from "@/lib/domain/status";
+import { allowedTransitions, checkTransition, nextAction, nextStatus, previousStatus } from "@/lib/domain/status";
 import { renderNotification, renderTemplate, templateForStatus } from "@/lib/domain/templates";
 import { createBookingSchema, parseListQuery, statusChangeSchema } from "@/lib/domain/validation";
 import { addDaysISO, formatINR, formatINRCompact, formatPujaDate, todayIST } from "@/lib/format";
@@ -18,6 +18,14 @@ describe("status workflow", () => {
     expect(checkTransition("Pending", "Completed").ok).toBe(false);
     expect(checkTransition("Confirmed", "Confirmed").ok).toBe(false);
     expect(checkTransition("Pending", "Confirmed").ok).toBe(true);
+  });
+
+  it("only allows starting a puja on or after its date", () => {
+    expect(checkTransition("Confirmed", "In Progress", { pujaDate: "2026-11-25", today: "2026-11-24" }).ok).toBe(false);
+    expect(checkTransition("Confirmed", "In Progress", { pujaDate: "2026-11-24", today: "2026-11-24" }).ok).toBe(true);
+    expect(nextAction({ status: "Confirmed", pujaDate: "2026-12-12" }, "2026-11-24")).toMatchObject({ enabled: false, reason: "Starts 12 Dec 2026" });
+    expect(nextAction({ status: "Pending", pujaDate: "2026-12-12" }, "2026-11-24")).toMatchObject({ to: "Confirmed", enabled: true });
+    expect(nextAction({ status: "Completed", pujaDate: "2026-11-01" }, "2026-11-24")).toBeNull();
   });
 
   it("requires a note to roll back", () => {
