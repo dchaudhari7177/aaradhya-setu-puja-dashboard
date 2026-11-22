@@ -109,7 +109,7 @@ export function generateSeed(now: Date = new Date(), count = 72, seed = 2026): S
   bookings.sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   bookings.forEach((b, idx) => {
     b.id = formatBookingId(BOOKING_ID_START + idx);
-    if (b.status === "Completed") b.videoUrl = `https://www.youtube.com/watch?v=demo-${b.id.toLowerCase()}`;
+    if (b.status === "Completed") b.videoUrl = `https://videos.aaradhyasetu.example/${b.id.toLowerCase()}`;
     for (const event of b.history) {
       const template = templateForStatus(event.to);
       notifications.push({

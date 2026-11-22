@@ -1,3 +1,4 @@
+import { unstable_rethrow } from "next/navigation";
 import { ZodError } from "zod";
 import { fieldErrors } from "@/lib/domain/validation";
 import { ConflictError } from "./repository";
@@ -54,6 +55,7 @@ export function route<A extends unknown[]>(handler: (...args: A) => Promise<Resp
     try {
       return await handler(...args);
     } catch (err) {
+      unstable_rethrow(err); // let Next.js control-flow signals (prerender bailout, redirects) through
       return errorResponse(err);
     }
   };

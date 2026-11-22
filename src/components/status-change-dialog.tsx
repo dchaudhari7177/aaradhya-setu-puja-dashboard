@@ -9,6 +9,7 @@ import type { Booking, BookingStatus, NotificationRecord } from "@/lib/domain/ty
 import { api, ApiClientError } from "@/lib/api-client";
 import { Button } from "./ui/button";
 import { StatusBadge } from "./status-badge";
+import { WhatsAppText } from "./whatsapp-thread";
 
 export interface StatusChangeResult {
   booking: Booking;
@@ -42,9 +43,9 @@ export function StatusChangeDialog({
   const [fieldError, setFieldError] = useState<Record<string, string>>({});
 
   useEffect(() => {
+    // No close() in a cleanup: StrictMode re-runs effects, and closing fires onClose, which would unmount the dialog.
     const d = ref.current;
-    d?.showModal();
-    return () => d?.close();
+    if (d && !d.open) d.showModal();
   }, []);
 
   const preview = rollback
@@ -172,8 +173,8 @@ export function StatusChangeDialog({
                 WhatsApp to {booking.devotee.name.split(" ")[0]}: {NOTIFICATION_TEMPLATES[templateForStatus(to)].title}
               </p>
               <div className="wa-wall rounded-xl p-3">
-                <p className="max-w-[92%] rounded-lg rounded-tl-none bg-white px-3 py-2 text-[0.8125rem] leading-relaxed whitespace-pre-line shadow-sm">
-                  {preview}
+                <p className="max-w-[92%] rounded-lg rounded-tl-none bg-whatsapp-bubble px-3 py-2 text-[0.8125rem] leading-relaxed whitespace-pre-line shadow-sm">
+                  <WhatsAppText text={preview} />
                 </p>
               </div>
             </div>

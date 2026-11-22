@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useState, type ReactNode } from "react";
 import { Database, LayoutDashboard, Menu, MessageCircle, Plus, RotateCcw, X } from "lucide-react";
 import clsx from "clsx";
 import { Logo } from "./logo";
@@ -16,15 +16,7 @@ const NAV = [
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
   const [open, setOpen] = useState(false);
-
-  // Close the mobile drawer whenever the route changes.
-  const [lastPath, setLastPath] = useState(pathname);
-  if (lastPath !== pathname) {
-    setLastPath(pathname);
-    setOpen(false);
-  }
 
   useEffect(() => {
     if (!open) return;
@@ -37,7 +29,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="lg:grid lg:min-h-dvh lg:grid-cols-[16.5rem_1fr]">
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-dvh flex-col bg-maroon-900 text-cream lg:flex">
-        <SidebarContent pathname={pathname} />
+        <SidebarContent />
       </aside>
 
       {/* Mobile top bar */}
@@ -68,7 +60,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <X className="size-5" />
             </button>
-            <SidebarContent pathname={pathname} />
+            <SidebarContent onNavigate={() => setOpen(false)} />
           </aside>
         </div>
       )}
@@ -78,7 +70,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 }
 
-function SidebarContent({ pathname }: { pathname: string }) {
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <>
       <div className="px-5 pt-5 pb-6">
@@ -89,13 +81,32 @@ function SidebarContent({ pathname }: { pathname: string }) {
           <Logo />
         </div>
       </div>
+      {/* The active highlight depends on the URL, so it streams in behind Suspense; the links render immediately. */}
+      <Suspense fallback={<NavLinks pathname={null} onNavigate={onNavigate} />}>
+        <ActiveNavLinks onNavigate={onNavigate} />
+      </Suspense>
+      <div className="mt-auto space-y-3 p-4">
+        <SystemCard />
+        <p className="px-1 text-xs text-cream/45">Prototype for the Aaradhya Setu SDE intern assignment.</p>
+      </div>
+    </>
+  );
+}
+
+function ActiveNavLinks({ onNavigate }: { onNavigate?: () => void }) {
+  return <NavLinks pathname={usePathname()} onNavigate={onNavigate} />;
+}
+
+function NavLinks({ pathname, onNavigate }: { pathname: string | null; onNavigate?: () => void }) {
+  return (
       <nav className="flex flex-col gap-1 px-3" aria-label="Main">
         {NAV.map(({ href, label, icon: Icon, match }) => {
-          const active = match(pathname);
+          const active = pathname !== null && match(pathname);
           return (
             <Link
               key={href}
               href={href}
+              onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={clsx(
                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-[0.9375rem] font-medium transition-colors",
@@ -108,11 +119,6 @@ function SidebarContent({ pathname }: { pathname: string }) {
           );
         })}
       </nav>
-      <div className="mt-auto space-y-3 p-4">
-        <SystemCard />
-        <p className="px-1 text-xs text-cream/45">Prototype for the Aaradhya Setu SDE intern assignment.</p>
-      </div>
-    </>
   );
 }
 
