@@ -29,19 +29,11 @@ const NAV = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { status } = useAuth();
-  if (status === "loading") return <Splash />;
+  // While Firebase restores a saved session ("loading") the dashboard frame and
+  // its skeletons render as usual (and are prerendered); data requests wait for
+  // the session inside api(). Only a confirmed signed-out visitor sees sign-in.
   if (status === "signed-out") return <SignInScreen />;
   return <Shell>{children}</Shell>;
-}
-
-function Splash() {
-  return (
-    <div className="grid min-h-dvh place-items-center bg-cream" role="status" aria-label="Loading">
-      <div className="animate-pulse">
-        <Logo compact />
-      </div>
-    </div>
-  );
 }
 
 function Shell({ children }: { children: ReactNode }) {

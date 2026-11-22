@@ -35,8 +35,14 @@ export function clientAuth(): Auth | null {
   return auth;
 }
 
-/** A fresh ID token for the signed-in admin (the SDK refreshes it before expiry). */
+/**
+ * A fresh ID token for the signed-in admin (the SDK refreshes it before expiry).
+ * Waits for Firebase to restore a saved session first, so requests made on the
+ * first render never go out unauthenticated by accident.
+ */
 export async function currentIdToken(): Promise<string | null> {
-  const user = clientAuth()?.currentUser;
-  return user ? user.getIdToken() : null;
+  const auth = clientAuth();
+  if (!auth) return null;
+  await auth.authStateReady();
+  return auth.currentUser ? auth.currentUser.getIdToken() : null;
 }

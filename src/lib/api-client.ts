@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { currentIdToken } from "./firebase-client";
+import { authConfigured, currentIdToken } from "./firebase-client";
 
 /** Error carrying the API's { error: { code, message, details } } payload. */
 export class ApiClientError extends Error {
@@ -25,7 +25,7 @@ export async function api<T>(url: string, init?: RequestInit & { json?: unknown 
       body: json !== undefined ? JSON.stringify(json) : rest.body,
     });
   } catch (err) {
-    if ((err as Error).name === "AbortError") throw err;
+    if ((err as Error).name === "AbortError" || err instanceof ApiClientError) throw err;
     throw new ApiClientError(0, "network", "Can't reach the server. Check your connection and try again.");
   }
   const body = await res.json().catch(() => null);
@@ -45,6 +45,8 @@ export async function api<T>(url: string, init?: RequestInit & { json?: unknown 
 /** fetch() with the signed-in admin's Firebase ID token attached. */
 export async function authedFetch(url: string, init: RequestInit = {}): Promise<Response> {
   const token = await currentIdToken();
+  // Signed out: don't send a request that can only fail; the shell is showing the sign-in screen.
+  if (authConfigured && !token) throw new ApiClientError(401, "unauthenticated", "Please sign in to continue.");
   const headers = new Headers(init.headers);
   if (token) headers.set("Authorization", `Bearer ${token}`);
   return fetch(url, { ...init, headers });
