@@ -38,10 +38,13 @@ export async function requireAdmin(request: Request): Promise<Actor> {
   const token = header.match(/^Bearer\s+(.+)$/i)?.[1];
   if (!token) throw new ApiError(401, "unauthenticated", "Please sign in to continue.");
 
+  // Outside the try: a misconfigured server (bad key file, wrong project) is a 500, not "please sign in".
+  const auth = getAuth(adminApp());
   let decoded;
   try {
-    decoded = await getAuth(adminApp()).verifyIdToken(token);
-  } catch {
+    decoded = await auth.verifyIdToken(token);
+  } catch (err) {
+    console.warn("[auth] rejected ID token:", (err as { code?: string }).code ?? (err as Error).message);
     throw new ApiError(401, "unauthenticated", "Your session has expired. Please sign in again.");
   }
 

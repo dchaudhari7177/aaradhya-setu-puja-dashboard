@@ -12,7 +12,8 @@
     "seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
     "format": "prettier --write .",
     "test:emulators": "firebase emulators:exec --only firestore,auth --project demo-aaradhya-setu \"vitest run tests/repository.contract.test.ts tests/auth.emulator.test.ts\"",
-    "make-admin": "tsx --env-file-if-exists=.env.local scripts/make-admin.ts"
+    "make-admin": "tsx --env-file-if-exists=.env.local scripts/make-admin.ts",
+    "invite-admin": "tsx --env-file-if-exists=.env.local scripts/invite-admin.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
