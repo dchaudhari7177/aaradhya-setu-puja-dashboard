@@ -7,8 +7,9 @@ import { adminApp } from "./firebase-admin";
  *
  * When Firebase Auth is configured (NEXT_PUBLIC_FIREBASE_API_KEY is set), every
  * API request must carry `Authorization: Bearer <Firebase ID token>`. The token
- * is verified with the Admin SDK (signature, expiry, project), and, when
- * ADMIN_EMAILS is set, the email must be on that allow-list. Without Firebase
+ * is verified with the Admin SDK (signature, expiry, project), and the account
+ * must be on the ADMIN_EMAILS allow-list or have the `admin` custom claim
+ * (set with `npm run make-admin -- <email>`). Without Firebase
  * config (local development, tests) the API is open and changes are recorded
  * as "Admin".
  */
@@ -44,9 +45,12 @@ export async function requireAdmin(request: Request): Promise<Actor> {
     throw new ApiError(401, "unauthenticated", "Your session has expired. Please sign in again.");
   }
 
+  // Secure by default: the web API key is public, so anyone can create an
+  // account in the project. Only accounts on ADMIN_EMAILS or carrying the
+  // `admin` custom claim get through; with neither configured, nobody does.
   const email = decoded.email?.toLowerCase() ?? null;
-  const allowed = allowList();
-  if (allowed.length > 0 && (!email || !allowed.includes(email))) {
+  const onList = email !== null && allowList().includes(email);
+  if (!onList && decoded.admin !== true) {
     throw new ApiError(403, "forbidden", "This account is not an Aaradhya Setu admin.");
   }
 

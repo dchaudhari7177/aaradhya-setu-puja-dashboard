@@ -35,14 +35,16 @@ No database setup is needed. Without `MONGODB_URI`, the dev server starts a real
 | `npm test`                        | 78 tests (Vitest). The contract suite runs against a real mongod |
 | `npm run test:emulators`          | Firestore contract suite + Firebase Auth guard on the emulators  |
 | `npm run seed`                    | Reset whichever database is configured to the demo data          |
+| `npm run make-admin -- <email>`   | Grant dashboard access via the Firebase `admin` custom claim     |
 | `npm run lint` / `typecheck`      | ESLint, TypeScript                                               |
 
 ### Run on Firebase (Firestore + Auth)
 
 1. In the Firebase console: create a **Firestore** database, enable **Email/Password** under Authentication → Sign-in method, and add an admin user.
 2. Project settings → Service accounts → **Generate new private key**; save it as `.secrets/service-account.json` (git-ignored).
-3. Copy [`.env.example`](.env.example) to `.env.local` and set `FIREBASE_SERVICE_ACCOUNT_FILE`, the `NEXT_PUBLIC_FIREBASE_*` web config and `ADMIN_EMAILS`.
-4. `npm run dev`. Firestore is selected automatically once the key is present, the empty database is seeded, and the dashboard asks for sign-in.
+3. Copy [`.env.example`](.env.example) to `.env.local` and set `FIREBASE_SERVICE_ACCOUNT_FILE` and the `NEXT_PUBLIC_FIREBASE_*` web config.
+4. Grant access: `npm run make-admin -- you@example.com` (sets the `admin` custom claim), or list emails in `ADMIN_EMAILS`. Access is **closed by default**: with neither, nobody can use the API.
+5. `npm run dev`. Firestore is selected automatically once the key is present, the empty database is seeded, and the dashboard asks for sign-in.
 
 Deploy [`firestore.rules`](firestore.rules) too: it denies all direct browser access, because every read and write goes through the API. The **Reset demo data** button in the sidebar restores the dataset at any time.
 
@@ -127,7 +129,7 @@ curl -X PATCH localhost:3000/api/bookings/AS-100042/status \
 
 ## Decisions worth explaining
 
-- **Auth is enforced on the server, not just hidden in the UI.** The browser signs in with Firebase Auth and sends its ID token on every request. Each API route verifies the token with the Admin SDK (signature, expiry, project) and checks `ADMIN_EMAILS`, so the API answers `401` with no token and `403` for a valid account that isn't an admin. Firestore rules deny all direct client access; only the server, through the Admin SDK, touches the database.
+- **Auth is enforced on the server, not just hidden in the UI.** The browser signs in with Firebase Auth and sends its ID token on every request. Each API route verifies the token with the Admin SDK (signature, expiry, project), then requires an `admin` custom claim or a listed email. Because the Firebase web API key is public, anyone can create an account in the project, so access is **closed by default**: `401` with no token, `403` for any account that hasn't been granted admin. Firestore rules deny all direct client access; only the server, through the Admin SDK, touches the database.
 - **The workflow is a state machine.** Bookings move one step at a time, so a devotee always gets the four messages in order. An admin can move one step back to fix a mistake, but only with a note. Rollbacks are recorded in the history and **never** message the devotee.
 - **A puja can't start before its date.** Moving to _In Progress_ is refused until the puja date (in IST). The UI shows "Starts 12 Dec" instead of a button.
 - **Concurrent edits are safe.** A status change includes `expectedStatus`. The update is a compare-and-set (`findOneAndUpdate({ bookingId, status: expected })` in Mongo, a transaction in Firestore). If two admins click at once, one wins and the other gets `409` with the current booking. A test races two updates to prove it.

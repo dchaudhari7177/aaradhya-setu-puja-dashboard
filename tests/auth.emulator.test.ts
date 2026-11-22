@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
+import { getAuth } from "firebase-admin/auth";
 
 /**
  * End-to-end check of the API's Firebase Auth guard against the Auth emulator:
@@ -64,6 +65,25 @@ describe.skipIf(!host)("API auth guard (Firebase Auth emulator)", () => {
     const res = await get({ Authorization: `Bearer ${outsiderToken}` });
     expect(res.status).toBe(403);
     expect((await res.json()).error.code).toBe("forbidden");
+  });
+
+  it("is closed by default: with no ADMIN_EMAILS only the admin claim gets in", async () => {
+    const saved = process.env.ADMIN_EMAILS;
+    process.env.ADMIN_EMAILS = "";
+    try {
+      expect((await get({ Authorization: `Bearer ${adminToken}` })).status).toBe(403);
+
+      const { adminApp } = await import("@/server/firebase-admin");
+      const auth = getAuth(adminApp());
+      const user = await auth.getUserByEmail("claims.admin@aaradhyasetu.test").catch(() => null);
+      if (!user) await signUp("claims.admin@aaradhyasetu.test");
+      const uid = (await auth.getUserByEmail("claims.admin@aaradhyasetu.test")).uid;
+      await auth.setCustomUserClaims(uid, { admin: true });
+      const claimToken = await signUp("claims.admin@aaradhyasetu.test"); // fresh token carries the claim
+      expect((await get({ Authorization: `Bearer ${claimToken}` })).status).toBe(200);
+    } finally {
+      process.env.ADMIN_EMAILS = saved;
+    }
   });
 
   it("lets an admin in and records them in the booking history", async () => {
