@@ -93,7 +93,7 @@ export function NotificationLog() {
                       </span>
                       {n.status === "failed" && <span className="text-xs font-semibold text-brand-700">Failed</span>}
                     </span>
-                    <span className="mt-0.5 block truncate text-sm text-muted">{n.message.replace(/\*/g, "").split("\n")[0]}</span>
+                    <span className="mt-0.5 block truncate text-sm text-muted">{previewLine(n.message)}</span>
                   </span>
                   <span className="hidden shrink-0 text-right text-xs text-muted sm:block">
                     <span className="block font-mono font-semibold text-ink/80">{n.bookingId}</span>
@@ -143,6 +143,16 @@ export function NotificationLog() {
       )}
     </section>
   );
+}
+
+/** The first informative line of a message (skips a bare "Namaste Meera," greeting). */
+function previewLine(message: string): string {
+  const lines = message
+    .replace(/\*/g, "")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+  return (lines[0] && lines[0].length < 25 ? lines[1] : lines[0]) ?? "";
 }
 
 function Meta({ label, children }: { label: string; children: React.ReactNode }) {
