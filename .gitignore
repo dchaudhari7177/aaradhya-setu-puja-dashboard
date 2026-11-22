@@ -44,3 +44,11 @@ next-env.d.ts
 # local embedded MongoDB data
 /.data/
 
+
+# firebase
+*-debug.log
+.firebase/
+# service-account keys never go in git
+.secrets/
+*serviceAccount*.json
+*-firebase-adminsdk-*.json

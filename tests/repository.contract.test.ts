@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { MemoryRepository } from "@/server/adapters/memory";
 import { MongoRepository } from "@/server/adapters/mongo";
+import { FirestoreRepository } from "@/server/adapters/firestore";
 import { ConflictError, type BookingRepository } from "@/server/repository";
 import { generateSeed } from "@/server/seed-data";
 import { applyListQuery, computeStats } from "@/lib/domain/query";
@@ -54,6 +55,8 @@ const adapters: [string, () => BookingRepository][] = [
   ["memory", () => new MemoryRepository()],
   ["mongodb", () => new MongoRepository()],
 ];
+// Firestore joins the suite when the emulator is running: `npm run test:firestore`.
+if (process.env.FIRESTORE_EMULATOR_HOST) adapters.push(["firestore", () => new FirestoreRepository()]);
 
 describe.each(adapters)("%s adapter", (_name, make) => {
   let repo: BookingRepository;
