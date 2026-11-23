@@ -41,7 +41,7 @@ No database setup is needed. Without `MONGODB_URI`, the dev server starts a real
 | Script                            | What it does                                                     |
 | --------------------------------- | ---------------------------------------------------------------- |
 | `npm run dev` / `build` / `start` | Next.js dev server, production build, production server          |
-| `npm test`                        | 78 tests (Vitest). The contract suite runs against a real mongod |
+| `npm test`                        | 81 tests (Vitest). The contract suite runs against a real mongod |
 | `npm run test:emulators`          | Firestore contract suite + Firebase Auth guard on the emulators  |
 | `npm run seed`                    | Reset whichever database is configured to the demo data          |
 | `npm run make-admin -- <email>`   | Grant dashboard access via the Firebase `admin` custom claim     |
