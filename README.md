@@ -4,7 +4,16 @@ An admin dashboard for running Aaradhya Setu's online puja bookings. Ops staff c
 
 **Assignment:** Option 2, _Full-Stack: Puja Booking Dashboard_ (Next.js, Node.js, MongoDB). I also added the core of Option 3: every status change renders a WhatsApp template with the devotee's name, puja and booking ID, and stores it in a notification history.
 
-**Stack:** Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · **Firebase (Firestore + Auth)** through the Admin SDK. MongoDB (Mongoose) is supported through the same storage interface and is what runs locally with zero setup.
+**Live demo:** https://aaradhya-setu-puja-dashboard.vercel.app (admin sign-in required)
+
+**Stack:** Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · Node.js API routes · **MongoDB (Mongoose)** and **Firebase (Firestore + Auth)** behind one storage interface.
+
+| Where                 | Database                                                        | Sign-in                                |
+| --------------------- | --------------------------------------------------------------- | -------------------------------------- |
+| Local (`npm run dev`) | **MongoDB**: `MONGODB_URI`, or an embedded `mongod`, zero setup | Firebase Auth if configured, else open |
+| Hosted (Vercel)       | **Firestore** (asia-south1), via the Admin SDK                  | Firebase Auth, admins only             |
+
+`DB_DRIVER=mongodb|firestore` overrides the default in either place.
 
 ![Dashboard](docs/screenshots/dashboard.png)
 
@@ -44,7 +53,8 @@ No database setup is needed. Without `MONGODB_URI`, the dev server starts a real
 2. Project settings → Service accounts → **Generate new private key**; save it as `.secrets/service-account.json` (git-ignored).
 3. Copy [`.env.example`](.env.example) to `.env.local` and set `FIREBASE_SERVICE_ACCOUNT_FILE` and the `NEXT_PUBLIC_FIREBASE_*` web config.
 4. Grant access: `npm run make-admin -- you@example.com` (sets the `admin` custom claim), or list emails in `ADMIN_EMAILS`. Access is **closed by default**: with neither, nobody can use the API.
-5. `npm run dev`. Firestore is selected automatically once the key is present, the empty database is seeded, and the dashboard asks for sign-in.
+5. Locally the app still uses MongoDB; run with `DB_DRIVER=firestore` to use Firestore. `npm run seed` with the same setting loads the demo data. On Vercel, Firestore is the default.
+6. **Deploying to Vercel:** add `FIREBASE_SERVICE_ACCOUNT` (the key JSON, raw or base64) and the `NEXT_PUBLIC_FIREBASE_*` values as environment variables, then deploy. `vercel.json` pins the functions to Mumbai (`bom1`), next to the Firestore database.
 
 Deploy [`firestore.rules`](firestore.rules) too: it denies all direct browser access, because every read and write goes through the API. The **Reset demo data** button in the sidebar restores the dataset at any time.
 
@@ -135,7 +145,7 @@ curl -X PATCH localhost:3000/api/bookings/AS-100042/status \
 - **Concurrent edits are safe.** A status change includes `expectedStatus`. The update is a compare-and-set (`findOneAndUpdate({ bookingId, status: expected })` in Mongo, a transaction in Firestore). If two admins click at once, one wins and the other gets `409` with the current booking. A test races two updates to prove it.
 - **Booking IDs come from an atomic counter.** `AS-100001`, `AS-100002`, … are allocated with `$inc` on a counter document, so concurrent creates never collide. This is tested too. The IDs are short enough to read out on a phone call.
 - **Puja dates are calendar dates.** They're stored as `"YYYY-MM-DD"` strings, not timestamps. A puja happens on a day in India, so this avoids a UTC conversion shifting it to the day before. "Today" is computed in IST.
-- **Storage sits behind a port.** The service only knows `BookingRepository`. The deployed app uses Firestore; MongoDB (which the brief names) runs locally with zero setup. The same contract suite runs against the in-memory reference, a real mongod and the Firestore emulator, and checks that search, sorting, pagination, counts, KPIs and export match exactly across all three.
+- **Storage sits behind a port.** The service only knows `BookingRepository`. Locally the app runs on MongoDB, which the brief names; the hosted deployment runs on Firestore. Switching is configuration only (`src/server/drivers.ts`). The same contract suite runs against the in-memory reference, a real mongod and the Firestore emulator, and checks that search, sorting, pagination, counts, KPIs and export match exactly across all three.
 - **Mongo design:** indexes back the default views (newest first, by status, by puja date), and one aggregation produces the status-tab counts. Two denormalised keys (`statusRank` and a lower-cased name) let "sort by status" follow the workflow and "sort by devotee" ignore case.
 - **Firestore trade-off:** Firestore has no substring search and needs a composite index for every filter and sort combination. For an internal dashboard with thousands of rows, the adapter reads the collection and applies the shared, tested query logic. Past that scale, search should move to a search index.
 - **Messaging is behind a port.** `MockWhatsAppProvider` stands in for Meta's Cloud API or Gupshup. Every attempt is stored, failures included, so a delivery problem never blocks the status change. Templates use `{{name}}` placeholders that map directly to WhatsApp Business templates, and a missing value falls back to readable text instead of showing `{{videoUrl}}`.
